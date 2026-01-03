@@ -1,56 +1,97 @@
 ﻿<!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Назва ГО - Головна</title>
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CELA - Центр економіко-правової аналітики</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header>
         <div class="container header-content">
-            <div class="logo">LOGO</div>
+            <div class="logo">
+                <div class="logo-icon">CELA</div>
+                <span>Центр економіко-<br>правової аналітики</span>
+            </div>
+            
             <nav>
-                <ul>
-                    <li><a href="#about">Про нас</a></li>
-                    <li><a href="#projects">Проєкти</a></li>
-                    <li><a href="#contacts">Контакти</a></li>
-                </ul>
+                <a href="#">Про організацію</a>
+                <a href="#">Події</a>
+                <a href="#">Заходи</a>
+                <a href="#">Співпраця</a>
             </nav>
-            <a href="#donate" class="btn">Підтримати</a>
+
+            <div class="header-actions">
+                <div class="search-box">
+                    <input type="text" placeholder="Пошук...">
+                </div>
+                <div class="lang-switch">
+                    <span class="active">UA</span> | <span>PL</span> | <span>ENG</span>
+                </div>
+                <a href="#donate" class="btn btn-primary">Підтримати</a>
+            </div>
         </div>
     </header>
 
     <section class="hero">
-        <div class="container">
-            <h1>Ми змінюємо світ на краще</h1>
-            <p>Короткий опис місії вашої організації в одне речення.</p>
-            <a href="#join" class="btn btn-primary">Приєднатися до нас</a>
+        <div class="overlay"></div>
+        <div class="container hero-content">
+            <h1>Аналітика заради розвитку.<br>Право заради справедливості.</h1>
+            <p>Незалежний погляд на складні процеси.</p>
+            <a href="#more" class="btn btn-secondary">Дізнатися більше</a>
         </div>
     </section>
 
-    <section id="projects" class="container section">
-        <h2>Наші останні новини</h2>
-        <div class="grid">
-            <article class="card">
-                <h3>Звіт за місяць</h3>
-                <p>Ми провели 5 заходів та зібрали волонтерів...</p>
-            </article>
-            <article class="card">
-                <h3>Новий збір</h3>
-                <p>Відкриваємо збір коштів на закупівлю обладнання...</p>
-            </article>
-            <article class="card">
-                <h3>Історія успіху</h3>
-                <p>Як нам вдалося допомогти конкретній людині...</p>
-            </article>
-        </div>
-    </section>
+    <div class="content-wrapper">
+        
+        <section class="section container">
+            <h2>Найближчі Події</h2>
+            <div class="grid">
+                <div class="card squircle">
+                    <div class="card-date">26.04.2025</div>
+                    <h3>Економіко-правовий форум</h3>
+                    <p>Обговорення нових законопроєктів...</p>
+                    <a href="#" class="btn btn-small">Дізнатися</a>
+                </div>
+                <div class="card squircle highlight">
+                    <div class="card-date">23.04.2025</div>
+                    <h3>Відкрита лекція</h3>
+                    <p>Аналітика ринку праці в умовах змін...</p>
+                    <a href="#" class="btn btn-small">Дізнатися</a>
+                </div>
+                <div class="card squircle">
+                    <div class="card-date">18.04.2025</div>
+                    <h3>Зустріч з партнерами</h3>
+                    <p>Стратегічне планування року...</p>
+                    <a href="#" class="btn btn-small">Дізнатися</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section container">
+            <h2>Наші Партнери</h2>
+            <div class="partners-row">
+                <div class="partner-logo">CELA</div>
+                <div class="partner-logo">MJS</div>
+                <div class="partner-logo">RSIF</div>
+                <div class="partner-logo">UNIV</div>
+                <div class="partner-logo">NGO</div>
+            </div>
+        </section>
+    </div>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2024 Громадська Організація. Всі права захищено.</p>
+        <div class="container footer-content">
+            <div class="socials">
+                <a href="#">FB</a>
+                <a href="#">TW</a>
+                <a href="#">IN</a>
+            </div>
+            <div class="footer-info">
+                <p>+38 (099) 123-45-67</p>
+                <p>contact@cela.org.ua</p>
+            </div>
         </div>
     </footer>
 
