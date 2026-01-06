@@ -1,169 +1,44 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CELA - Центр економіко-правової аналітики</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Центр економіко-правової аналітики</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    .material-icons-round {
+      font-size: 24px;
+    }
+    /* Smooth scrolling for anchor links */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://esm.sh/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://esm.sh/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://esm.sh/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://esm.sh/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://esm.sh/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/platform-browser": "https://esm.sh/@angular/platform-browser@^21.0.6?external=rxjs",
+    "@angular/core": "https://esm.sh/@angular/core@^21.0.6?external=rxjs",
+    "@angular/compiler": "https://esm.sh/@angular/compiler@^21.0.6?external=rxjs",
+    "@angular/forms": "https://esm.sh/@angular/forms@^21.0.6?external=rxjs",
+    "@angular/common": "https://esm.sh/@angular/common@^21.0.6?external=rxjs"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <div class="logo-icon">CELA</div>
-                <span>Центр економіко-<br>правової аналітики</span>
-            </div>
-            
-           <nav class="modern-nav">
-                
-                <div class="nav-item">
-                    <button class="nav-btn">Про організацію</button>
-                    <div class="mega-menu">
-                        <div class="menu-grid">
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">🏛️</div>
-                                <div class="text-box">
-                                    <span class="title">Хто ми</span>
-                                    <span class="desc">Місія та цінності CELA</span>
-                                </div>
-                            </a>
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">👥</div>
-                                <div class="text-box">
-                                    <span class="title">Команда</span>
-                                    <span class="desc">Наші експерти та аналітики</span>
-                                </div>
-                            </a>
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">📊</div>
-                                <div class="text-box">
-                                    <span class="title">Звітність</span>
-                                    <span class="desc">Прозорі фінансові звіти</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="nav-item">
-                    <button class="nav-btn">Події</button>
-                    <div class="mega-menu">
-                        <div class="menu-grid">
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">🔥</div>
-                                <div class="text-box">
-                                    <span class="title">Гарячі анонси</span>
-                                    <span class="desc">Приєднуйтесь до найближчих подій</span>
-                                </div>
-                            </a>
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">📰</div>
-                                <div class="text-box">
-                                    <span class="title">Новини</span>
-                                    <span class="desc">Останні зміни в законодавстві</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="nav-item">
-                    <button class="nav-btn">Співпраця</button>
-                    <div class="mega-menu">
-                        <div class="menu-grid">
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">🤝</div>
-                                <div class="text-box">
-                                    <span class="title">Партнерам</span>
-                                    <span class="desc">Спільні проєкти та меморандуми</span>
-                                </div>
-                            </a>
-                            <a href="#" class="menu-card">
-                                <div class="icon-box">❤️</div>
-                                <div class="text-box">
-                                    <span class="title">Донорам</span>
-                                    <span class="desc">Як підтримати нашу діяльність</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </nav>
-
-            <div class="header-actions">
-                <div class="search-box">
-                    <input type="text" placeholder="Пошук...">
-                </div>
-                <div class="lang-switch">
-                    <span class="active">UA</span> | <span>PL</span> | <span>ENG</span>
-                </div>
-                <a href="#donate" class="btn btn-primary">Підтримати</a>
-            </div>
-        </div>
-    </header>
-
-    <section class="hero">
-        <div class="overlay"></div>
-        <div class="container hero-content">
-            <h1>Аналітика заради розвитку.<br>Право заради справедливості.</h1>
-            <p>Незалежний погляд на складні процеси.</p>
-            <a href="#more" class="btn btn-secondary">Дізнатися більше</a>
-        </div>
-    </section>
-
-    <div class="content-wrapper">
-        
-        <section class="section container">
-            <h2>Найближчі Події</h2>
-            <div class="grid">
-                <div class="card squircle">
-                    <div class="card-date">26.04.2025</div>
-                    <h3>Економіко-правовий форум</h3>
-                    <p>Обговорення нових законопроєктів...</p>
-                    <a href="#" class="btn btn-small">Дізнатися</a>
-                </div>
-                <div class="card squircle highlight">
-                    <div class="card-date">23.04.2025</div>
-                    <h3>Відкрита лекція</h3>
-                    <p>Аналітика ринку праці в умовах змін...</p>
-                    <a href="#" class="btn btn-small">Дізнатися</a>
-                </div>
-                <div class="card squircle">
-                    <div class="card-date">18.04.2025</div>
-                    <h3>Зустріч з партнерами</h3>
-                    <p>Стратегічне планування року...</p>
-                    <a href="#" class="btn btn-small">Дізнатися</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="section container">
-            <h2>Наші Партнери</h2>
-            <div class="partners-row">
-                <div class="partner-logo">CELA</div>
-                <div class="partner-logo">MJS</div>
-                <div class="partner-logo">RSIF</div>
-                <div class="partner-logo">UNIV</div>
-                <div class="partner-logo">NGO</div>
-            </div>
-        </section>
-    </div>
-
-    <footer>
-        <div class="container footer-content">
-            <div class="socials">
-                <a href="#">FB</a>
-                <a href="#">TW</a>
-                <a href="#">IN</a>
-            </div>
-            <div class="footer-info">
-                <p>+38 (099) 123-45-67</p>
-                <p>contact@cela.org.ua</p>
-            </div>
-        </div>
-    </footer>
-
+<body class="bg-slate-50 text-slate-800 antialiased">
+  <app-root></app-root>
 </body>
 </html>
