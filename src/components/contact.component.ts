@@ -40,7 +40,8 @@ import { TranslationService } from '../services/translation.service';
                 </div>
                 <div>
                   <h4 class="text-lg font-semibold text-white">{{ ts.t().contact.emailTitle }}</h4>
-                  <p class="text-slate-400">info@cepa.org.ua</p>
+                  <!-- ВИПРАВЛЕННЯ: замінено @ на &#64; -->
+                  <p class="text-slate-400">info&#64;cepa.org.ua</p>
                 </div>
               </div>
 
