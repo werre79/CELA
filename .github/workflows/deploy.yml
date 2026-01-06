@@ -26,20 +26,22 @@ jobs:
         with:
           node-version: "20"
           cache: 'npm'
-          cache-dependency-path: package.json # Важливо, оскільки package-lock.json немає
+          cache-dependency-path: package.json
 
       - name: Install Dependencies
-        # Змінено з 'npm ci' на 'npm install', щоб працювало без package-lock.json
-        run: npm install
+        # ВИПРАВЛЕННЯ: Примусово видаляємо старий lock-файл перед установкою
+        # Це змушує npm слухати тільки наш правильний package.json
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Build
-        # Збираємо проект
         run: npm run build -- --base-href /${{ github.event.repository.name }}/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/cepa-website/browser
+          path: ./dist/cepa-website
 
   deploy:
     environment:
