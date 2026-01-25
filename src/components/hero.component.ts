@@ -1,80 +1,67 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-hero',
   standalone: true,
+  imports: [CommonModule],
   template: `
-    <section id="home" class="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden">
-      <!-- Background Shapes/Gradient -->
-      <div class="absolute top-0 left-0 w-full h-full -z-10 bg-slate-50">
-        <div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-        <div class="absolute top-[20%] left-[-10%] w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div class="absolute bottom-[-20%] right-[20%] w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-dark via-[#2E1A12] to-black z-0"></div>
+      
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-orange/20 rounded-full blur-[100px] animate-pulse"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-brand-yellow/10 rounded-full blur-[80px]"></div>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div class="inline-flex items-center px-4 py-2 rounded-full bg-orange-100 text-orange-800 text-sm font-medium mb-8 shadow-sm">
-          <span class="material-icons-round text-base mr-2">analytics</span>
-          {{ ts.t().hero.badge }}
-        </div>
+      <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
         
-        <h1 class="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight mb-6">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-8 animate-fade-in-up">
+          <span class="material-icons-round text-brand-yellow text-sm">verified</span>
+          <span class="text-brand-yellow text-sm font-medium tracking-wide">{{ ts.t().hero.badge }}</span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-up delay-100">
           {{ ts.t().hero.titleStart }} <br class="hidden md:block"/>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-            {{ ts.t().hero.titleEnd }}
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-yellow">
+             {{ ts.t().hero.titleEnd }}
           </span>
         </h1>
-        
-        <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-600 mb-10">
+
+        <p class="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
           {{ ts.t().hero.description }}
         </p>
 
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-          <button (click)="scrollTo('contact')" class="px-8 py-3 bg-amber-600 text-white font-medium rounded-full shadow-lg hover:bg-amber-700 hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center">
-            {{ ts.t().hero.btnContact }}
-            <span class="material-icons-round ml-2">arrow_forward</span>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-300">
+          
+          <button (click)="scrollTo('contact')" 
+                  class="px-8 py-4 bg-brand-orange text-white font-bold rounded-xl shadow-lg shadow-brand-orange/30 hover:shadow-brand-orange/50 hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+             {{ ts.t().hero.btnContact }}
           </button>
           
-          <button (click)="openSupport()" class="px-8 py-3 bg-amber-100 text-amber-800 font-medium rounded-full shadow-md hover:bg-amber-200 transition-colors flex items-center justify-center">
-             <span class="material-icons-round mr-2">favorite</span>
-             {{ ts.t().hero.btnSupport }}
+          <button (click)="scrollTo('projects')" 
+                  class="px-8 py-4 bg-white/5 text-white font-bold rounded-xl border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm w-full sm:w-auto">
+             {{ ts.t().hero.btnMore }}
           </button>
 
-          <button (click)="scrollTo('about')" class="px-8 py-3 bg-white text-slate-700 font-medium rounded-full shadow-md border border-slate-200 hover:bg-slate-50 hover:text-amber-600 transition-colors flex items-center justify-center">
-            {{ ts.t().hero.btnMore }}
-          </button>
         </div>
       </div>
+
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-slate-500">
+        <span class="material-icons-round">keyboard_arrow_down</span>
+      </div>
     </section>
-  `,
-  styles: [`
-    @keyframes blob {
-      0% { transform: translate(0px, 0px) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
-      100% { transform: translate(0px, 0px) scale(1); }
-    }
-    .animate-blob {
-      animation: blob 7s infinite;
-    }
-    .animation-delay-2000 {
-      animation-delay: 2s;
-    }
-    .animation-delay-4000 {
-      animation-delay: 4s;
-    }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  `
 })
 export class HeroComponent {
   ts = inject(TranslationService);
 
+  // Функція прокрутки (така сама, як у Navbar)
   scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  }
-
-  openSupport() {
-    alert(this.ts.t().nav.support + ': Посилання на донат (LiqPay/WayForPay)');
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.warn(`Секцію з id="${id}" не знайдено!`);
+    }
   }
 }

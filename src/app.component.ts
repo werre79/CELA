@@ -1,10 +1,6 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { RouterOutlet } from '@angular/router'; // <-- Важливо
 import { NavbarComponent } from './components/navbar.component';
-import { HeroComponent } from './components/hero.component';
-import { AboutComponent } from './components/about.component';
-import { ServicesComponent } from './components/services.component';
-import { TeamComponent } from './components/team.component';
-import { ContactComponent } from './components/contact.component';
 import { FooterComponent } from './components/footer.component';
 
 @Component({
@@ -12,16 +8,20 @@ import { FooterComponent } from './components/footer.component';
   standalone: true,
   imports: [
     NavbarComponent,
-    HeroComponent,
-    AboutComponent,
-    ServicesComponent,
-    TeamComponent,
-    ContactComponent,
+    RouterOutlet, // <-- Це місце, де міняються сторінки
     FooterComponent
   ],
-  templateUrl: './app.component.html',
+  template: `
+    <div class="flex flex-col min-h-screen font-sans bg-[#2E1A12] text-white">
+      <app-navbar></app-navbar>
+      
+      <main class="flex-grow">
+        <router-outlet></router-outlet>
+      </main>
+
+      <app-footer></app-footer>
+    </div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
-  // Global state or layout logic can go here
-}
+export class AppComponent {}

@@ -1,66 +1,68 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { TranslationService } from '../services/translation.service';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
+  imports: [CommonModule],
   template: `
-    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+    <footer class="bg-brand-dark text-slate-400 py-12 border-t border-white/5">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-          
-          <div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div class="col-span-1 md:col-span-2">
             <div class="flex items-center gap-2 mb-4 text-white">
-              <span class="material-icons-round text-amber-500">analytics</span>
+              <div class="w-8 h-8 border-2 border-brand-orange rounded flex items-center justify-center font-bold bg-brand-orange text-white">Ц</div>
               <span class="font-bold text-xl">ЦЕПА</span>
             </div>
-            <p class="text-sm leading-relaxed max-w-xs mb-6">
-              {{ ts.t().about.description }}
+            <p class="text-sm text-slate-500 mb-6 max-w-xs">
+              Ми — незалежний аналітичний центр, що фокусується на стійкій відбудові України, питаннях безпеки та впровадженні ESG стандартів.
             </p>
-            <span class="text-xs text-slate-500">{{ ts.t().footer.rights }}</span>
           </div>
 
           <div>
-            <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Ми в соцмережах</h4>
-            <div class="flex gap-4">
-              <a href="https://youtube.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all group">
-                <span class="material-icons-round group-hover:scale-110 transition-transform">play_arrow</span>
-              </a>
-              <a href="https://facebook.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all group">
-                <span class="material-icons-round group-hover:scale-110 transition-transform">facebook</span>
-              </a>
-              <a href="https://linkedin.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all group">
-                <span class="material-icons-round group-hover:scale-110 transition-transform">work</span>
-              </a>
-              <a href="https://instagram.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all group">
-                <span class="material-icons-round group-hover:scale-110 transition-transform">photo_camera</span>
-              </a>
-            </div>
+            <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Навігація</h4>
+            <ul class="space-y-2 text-sm">
+              <li><button (click)="scrollTo('about')" class="hover:text-brand-orange transition-colors">Про нас</button></li>
+              <li><button (click)="scrollTo('projects')" class="hover:text-brand-orange transition-colors">Проєкти</button></li>
+              <li><button (click)="scrollTo('publications')" class="hover:text-brand-orange transition-colors">Публікації</button></li>
+            </ul>
           </div>
 
-          <div class="flex flex-col items-start">
-             <h4 class="text-white font-bold mb-6 text-sm uppercase tracking-wider">Співпраця</h4>
-             <p class="text-sm mb-4">Потрібна експертна допомога?</p>
-             <button class="px-6 py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors shadow-lg shadow-amber-900/20 flex items-center">
-               <span>{{ ts.t().nav.consultation }}</span>
-               <span class="material-icons-round ml-2 text-sm">arrow_outward</span>
-             </button>
+          <div>
+            <h4 class="text-white font-bold mb-4 uppercase text-xs tracking-wider">Співпраця</h4>
+            <p class="text-sm mb-4">Потрібна експертна допомога?</p>
+            
+            <button (click)="scrollTo('contact')" 
+                    class="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-[#c5662a] transition-colors w-full md:w-auto text-sm flex items-center justify-center gap-2">
+              {{ ts.t().contact.formTitle }} 
+              <span class="material-icons-round text-sm">north_east</span>
+            </button>
           </div>
         </div>
 
-        <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between text-xs text-slate-500">
-          <div class="flex gap-6 mb-4 md:mb-0">
-             <a href="#" class="hover:text-amber-500 transition-colors">{{ ts.t().footer.privacy }}</a>
-             <a href="#" class="hover:text-amber-500 transition-colors">{{ ts.t().footer.terms }}</a>
+        <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
+          <p>{{ ts.t().footer.rights }}</p>
+          <div class="flex gap-6 mt-4 md:mt-0">
+            <a href="#" class="hover:text-brand-orange transition-colors">{{ ts.t().footer.privacy }}</a>
+            <a href="#" class="hover:text-brand-orange transition-colors">{{ ts.t().footer.terms }}</a>
           </div>
-          <div>Designed for CELA UA</div>
+          <p class="mt-4 md:mt-0 text-slate-600">Designed for CELA UA</p>
         </div>
+
       </div>
     </footer>
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  `
 })
 export class FooterComponent {
   ts = inject(TranslationService);
+
+  // Додаємо метод прокрутки, якого тут не вистачало
+  scrollTo(id: string) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 }

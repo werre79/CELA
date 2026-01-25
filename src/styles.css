@@ -1,10 +1,51 @@
-/* Global Styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Roboto', sans-serif;
+@layer base {
+  :root {
+    /* Налаштування кольорів HSL */
+    --brand: 24 66% 53%;
+    --brand-foreground: 45 86% 62%;
+    --background: 17 43% 13%;
+    --foreground: 0 0% 100%;
+  }
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Montserrat', 'Roboto', sans-serif;
+}
+
+@layer utilities {
+  .glow-effect {
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+/* Shiny Button CSS Properties (Houdini API) */
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-angle-offset {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --gradient-percent {
+  syntax: "<percentage>";
+  initial-value: 5%;
+  inherits: false;
+}
+
+@property --gradient-shine {
+  syntax: "<color>";
+  initial-value: white;
+  inherits: false;
 }
