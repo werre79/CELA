@@ -8,57 +8,29 @@ import { TranslationService, Language } from '../services/translation.service';
   imports: [CommonModule],
   template: `
     <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" 
-         [class.bg-white/90]="isScrolled()" 
-         [class.backdrop-blur-md]="isScrolled()"
-         [class.shadow-sm]="isScrolled()"
-         [class.py-2]="isScrolled()"
-         [class.py-4]="!isScrolled()">
+         [ngClass]="{
+           'bg-white/90 backdrop-blur-md shadow-sm py-2': isScrolled(),
+           'py-4': !isScrolled()
+         }">
       
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center">
           
           <div class="flex items-center gap-2 cursor-pointer" (click)="scrollTo('home')">
             <div class="w-10 h-10 bg-[#D97736] rounded-lg flex items-center justify-center text-white font-bold text-xl">Ц</div>
-            <span class="font-bold text-xl text-slate-800" [class.text-white]="!isScrolled() && !isMobileMenuOpen">ЦЕПА</span>
+            <span class="font-bold text-xl transition-colors" 
+                  [ngClass]="(isScrolled() || isMobileMenuOpen) ? 'text-slate-800' : 'text-white'">
+              ЦЕПА
+            </span>
           </div>
 
           <div class="hidden md:flex items-center gap-8">
-            <button (click)="scrollTo('about')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.about }}
-            </button>
-            <button (click)="scrollTo('services')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.services }}
-            </button>
-            <button (click)="scrollTo('projects')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.projects }}
-            </button>
-            <button (click)="scrollTo('publications')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.publications }}
-            </button>
-            <button (click)="scrollTo('team')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.team }}
-            </button>
-            <button (click)="scrollTo('contact')" 
-                    class="font-medium transition-colors hover:text-[#D97736]"
-                    [class.text-slate-600]="isScrolled()"
-                    [class.text-slate-200]="!isScrolled()">
-              {{ ts.t().nav.contact }}
-            </button>
+            <button (click)="scrollTo('about')" [class]="getLinkClass()">{{ ts.t().nav.about }}</button>
+            <button (click)="scrollTo('services')" [class]="getLinkClass()">{{ ts.t().nav.services }}</button>
+            <button (click)="scrollTo('projects')" [class]="getLinkClass()">{{ ts.t().nav.projects }}</button>
+            <button (click)="scrollTo('publications')" [class]="getLinkClass()">{{ ts.t().nav.publications }}</button>
+            <button (click)="scrollTo('team')" [class]="getLinkClass()">{{ ts.t().nav.team }}</button>
+            <button (click)="scrollTo('contact')" [class]="getLinkClass()">{{ ts.t().nav.contact }}</button>
 
             <div class="flex items-center gap-2 border-l border-slate-500/30 pl-4 ml-2">
               <button (click)="setLang('ua')" [class]="getLangClass('ua')">UA</button>
@@ -67,18 +39,14 @@ import { TranslationService, Language } from '../services/translation.service';
 
             <button (click)="openDonation()" 
                     class="px-5 py-2 rounded-full font-bold transition-all hover:scale-105 shadow-lg"
-                    [class.bg-[#D97736]="isScrolled()"
-                    [class.text-white]="isScrolled()"
-                    [class.bg-white]="!isScrolled()"
-                    [class.text-[#2E1A12]]="!isScrolled()">
+                    [ngClass]="isScrolled() ? 'bg-[#D97736] text-white' : 'bg-white text-[#2E1A12]'">
               {{ ts.t().nav.support }}
             </button>
           </div>
 
           <div class="md:hidden flex items-center">
-            <button (click)="toggleMobileMenu()" class="text-2xl focus:outline-none" 
-                    [class.text-slate-800]="isScrolled() || isMobileMenuOpen"
-                    [class.text-white]="!isScrolled() && !isMobileMenuOpen">
+            <button (click)="toggleMobileMenu()" class="text-2xl focus:outline-none transition-colors" 
+                    [ngClass]="(isScrolled() || isMobileMenuOpen) ? 'text-slate-800' : 'text-white'">
               <span class="material-icons-round">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
             </button>
           </div>
@@ -97,8 +65,12 @@ import { TranslationService, Language } from '../services/translation.service';
           <div class="border-t border-slate-100 my-2"></div>
           
           <div class="flex justify-center gap-6 py-2">
-            <button (click)="setLang('ua')" class="font-bold text-lg" [class.text-[#D97736]]="ts.currentLang() === 'ua'" [class.text-slate-400]="ts.currentLang() !== 'ua'">UA</button>
-            <button (click)="setLang('en')" class="font-bold text-lg" [class.text-[#D97736]]="ts.currentLang() === 'en'" [class.text-slate-400]="ts.currentLang() !== 'en'">EN</button>
+            <button (click)="setLang('ua')" 
+                    class="font-bold text-lg transition-colors" 
+                    [ngClass]="ts.currentLang() === 'ua' ? 'text-[#D97736]' : 'text-slate-400'">UA</button>
+            <button (click)="setLang('en')" 
+                    class="font-bold text-lg transition-colors" 
+                    [ngClass]="ts.currentLang() === 'en' ? 'text-[#D97736]' : 'text-slate-400'">EN</button>
           </div>
 
           <button (click)="openDonation()" class="w-full py-3 bg-[#D97736] text-white rounded-xl font-bold shadow-lg shadow-[#D97736]/30">
@@ -116,9 +88,18 @@ export class NavbarComponent {
   isMobileMenuOpen = false;
 
   constructor() {
-    window.addEventListener('scroll', () => {
-      this.isScrolled.set(window.scrollY > 20);
-    });
+    // Перевірка на scroll
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () => {
+        this.isScrolled.set(window.scrollY > 20);
+      });
+    }
+  }
+
+  // Допоміжна функція для класів посилань
+  getLinkClass() {
+    const base = "font-medium transition-colors hover:text-[#D97736]";
+    return this.isScrolled() ? `${base} text-slate-600` : `${base} text-slate-200`;
   }
 
   scrollTo(id: string) {
