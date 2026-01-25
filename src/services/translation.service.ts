@@ -1,13 +1,13 @@
 import { Injectable, signal, computed } from '@angular/core';
 
+export type Language = 'ua' | 'en';
+
 @Injectable({
   providedIn: 'root'
 })
 export class TranslationService {
-  // Поточна мова (за замовчуванням українська)
-  currentLang = signal<'ua' | 'en'>('ua');
+  currentLang = signal<Language>('ua'); // Використовуємо цей тип тут
 
-  // --- БАЗА ПЕРЕКЛАДІВ ---
   private translations = {
     ua: {
       nav: {
@@ -100,7 +100,6 @@ export class TranslationService {
         terms: 'Умови використання'
       }
     },
-    // --- АНГЛІЙСЬКА ВЕРСІЯ (EN) ---
     en: {
       nav: {
         about: 'About Us',
@@ -194,13 +193,10 @@ export class TranslationService {
     }
   };
 
-  // Signal, який автоматично віддає потрібний об'єкт перекладів
   t = computed(() => this.translations[this.currentLang()]);
 
-  // Метод зміни мови
-  setLanguage(lang: 'ua' | 'en') {
+  setLanguage(lang: Language) {
     this.currentLang.set(lang);
-    // ОСЬ ТУТ БУЛА ПОМИЛКА:
-    document.documentElement.lang = lang; // Тепер ми присвоюємо значення 'lang'
+    document.documentElement.lang = lang;
   }
 }
