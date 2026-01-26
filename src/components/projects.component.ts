@@ -1,101 +1,119 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../services/translation.service';
-import { AppwriteService } from '../services/appwrite.service'; // 1. Імпорт сервісу
-import { ProjectButtonComponent } from './project-button.component';
+import { AppwriteService } from '../services/appwrite.service';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProjectButtonComponent],
+  imports: [CommonModule, RouterModule],
   template: `
-    <section id="projects" class="py-20 bg-brand-cream text-slate-800">
-      <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-10 text-brand-dark">{{ ts.t().projects.title }}</h2>
+    <section id="projects" class="py-24 bg-brand-dark relative overflow-hidden">
+      <div class="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+
+      <div class="max-w-7xl mx-auto px-4 relative z-10">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl font-bold text-brand-cream mb-4 tracking-tight">
+            {{ ts.t().projects.title }}
+          </h2>
+          <div class="h-1 w-24 bg-brand-amber mx-auto rounded-full"></div>
+        </div>
         
         @if (isLoading()) {
-          <div class="text-center py-10 text-brand-orange animate-pulse">
-            Завантаження проєктів...
+          <div class="flex justify-center items-center py-20">
+            <span class="material-icons-round animate-spin text-4xl text-brand-glow">refresh</span>
           </div>
         }
 
-        @if (!isLoading() && projects().length === 0) {
-          <div class="text-center py-10 text-slate-400">
-            <p>Наразі проєктів немає. Завітайте згодом.</p>
-          </div>
-        }
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(300px,auto)]">
           
-          @if (donorProjects().length > 0) {
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-brand-orange">
-               <h3 class="text-xl font-bold mb-4 text-brand-dark flex items-center gap-2">
-                 <span class="material-icons-round text-brand-orange">public</span>
-                 {{ ts.t().projects.donors }}
-               </h3>
-               
-               <div *ngFor="let item of donorProjects()" class="mb-6 last:mb-0 p-5 bg-slate-50 rounded-xl border border-slate-100 hover:border-brand-orange/20 transition-colors flex flex-col items-start h-full">
-                 <div *ngIf="item.image" class="w-full h-48 mb-4 overflow-hidden rounded-lg bg-gray-200">
-                    <img [src]="item.image" alt="{{ item.title }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-                 </div>
+          @for (project of projects(); track project.$id; let i = $index) {
+            <div 
+              #projectCard
+              class="group relative rounded-squircle bg-brand-charcoal border border-white/5 overflow-hidden hover:border-brand-amber/30 transition-colors duration-500"
+              [class.md:col-span-2]="i === 0 || i === 3" 
+              [class.md:row-span-2]="i === 2"
+              (mousemove)="handleMouseMove($event, projectCard)"
+            >
+              <div 
+                class="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition duration-300"
+                [style.background]="getGradientStyle(projectCard)"
+              ></div>
 
-                 <strong class="block text-xl mb-3 text-brand-dark">{{ item.title }}</strong>
-                 <p class="text-slate-600 text-sm mb-6 flex-grow">{{ item.desc }}</p>
-                 
-                 <app-project-button [link]="['/project', item.$id]">
-                   Детальніше
-                 </app-project-button>
-               </div>
+              <div class="relative h-full flex flex-col p-8 z-10">
+                
+                @if (project.image) {
+                  <div class="absolute inset-0 z-0">
+                    <img [src]="project.image" class="w-full h-full object-cover opacity-20 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out grayscale group-hover:grayscale-0">
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-charcoal via-brand-charcoal/80 to-transparent transition-opacity duration-500 group-hover:opacity-60"></div>
+                  </div>
+                }
+
+                <div class="relative z-10 mb-auto">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase border border-white/10 backdrop-blur-md"
+                    [ngClass]="project.type === 'donor' 
+                      ? 'text-brand-glow bg-brand-glow/10' 
+                      : 'text-brand-stone bg-white/5'">
+                    {{ project.type === 'donor' ? ts.t().projects.donors : ts.t().projects.probono }}
+                  </span>
+                </div>
+
+                <div class="relative z-10 mt-8">
+                  <h3 class="text-2xl font-bold text-brand-cream mb-3 group-hover:text-brand-glow transition-colors">
+                    {{ project.title }}
+                  </h3>
+                  <p class="text-brand-stone line-clamp-3 mb-6 text-sm leading-relaxed group-hover:text-white/90 transition-colors">
+                    {{ project.desc }}
+                  </p>
+
+                  <a [routerLink]="['/project', project.$id]" 
+                     class="inline-flex items-center gap-2 text-brand-cream font-bold group/btn">
+                     Детальніше
+                     <span class="material-icons-round text-brand-amber group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+                  </a>
+                </div>
+              </div>
             </div>
           }
-
-          @if (probonoProjects().length > 0) {
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-brand-yellow">
-               <h3 class="text-xl font-bold mb-4 text-brand-dark flex items-center gap-2">
-                 <span class="material-icons-round text-brand-yellow">volunteer_activism</span>
-                 {{ ts.t().projects.probono }}
-               </h3>
-               
-               <div *ngFor="let item of probonoProjects()" class="mb-6 last:mb-0 p-5 bg-slate-50 rounded-xl border border-slate-100 hover:border-brand-yellow/30 transition-colors flex flex-col items-start h-full">
-                 
-                 <div *ngIf="item.image" class="w-full h-48 mb-4 overflow-hidden rounded-lg bg-gray-200">
-                    <img [src]="item.image" alt="{{ item.title }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
-                 </div>
-
-                 <strong class="block text-xl mb-3 text-brand-dark">{{ item.title }}</strong>
-                 <p class="text-slate-600 text-sm mb-6 flex-grow">{{ item.desc }}</p>
-                 
-                 <app-project-button [link]="['/project', item.$id]">
-                   Детальніше
-                 </app-project-button>
-               </div>
-            </div>
-          }
-
         </div>
+        
+        @if (!isLoading() && projects().length === 0) {
+          <div class="text-center py-20 border border-dashed border-brand-stone/20 rounded-squircle">
+            <p class="text-brand-stone">Проєкти скоро з'являться.</p>
+          </div>
+        }
+
       </div>
     </section>
   `
 })
 export class ProjectsComponent implements OnInit {
   ts = inject(TranslationService);
-  appwrite = inject(AppwriteService); // Підключаємо наш сервіс
-
-  isLoading = signal(true); // Стан завантаження
-  projects = signal<any[]>([]); // Тут будуть жити дані з бази
-
-  // Фільтруємо отримані дані на льоту
-  donorProjects = computed(() => this.projects().filter(p => p.type === 'donor'));
-  probonoProjects = computed(() => this.projects().filter(p => p.type === 'probono'));
+  appwrite = inject(AppwriteService);
+  
+  isLoading = signal(true);
+  projects = signal<any[]>([]);
 
   async ngOnInit() {
-    // Як тільки компонент завантажився — робимо запит до бази
     try {
       const data = await this.appwrite.getProjects();
       this.projects.set(data);
     } finally {
-      this.isLoading.set(false); 
+      this.isLoading.set(false);
     }
+  }
+
+  handleMouseMove(e: MouseEvent, card: HTMLElement) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+  }
+
+  getGradientStyle(card: HTMLElement) {
+    return `radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(245, 158, 11, 0.15), transparent 40%)`;
   }
 }

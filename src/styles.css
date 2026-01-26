@@ -2,50 +2,128 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    /* Налаштування кольорів HSL */
-    --brand: 24 66% 53%;
-    --brand-foreground: 45 86% 62%;
-    --background: 17 43% 13%;
-    --foreground: 0 0% 100%;
-  }
+/* Глобальний фон і колір тексту */
+body {
+    background-color: rgb(38, 25, 16); /* Насичений темно-коричневий колір */
+    color: rgb(255, 255, 255); /* Основний текст стає білим для контрасту */
 }
+
+/* Плавна прокрутка */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Стилізація скролбару (щоб виглядав дорого) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #1C1917;
+}
+::-webkit-scrollbar-thumb {
+  background: #292524;
+  border-radius: 5px;
+  border: 1px solid #1C1917;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B45309;
+}
+
+/* Кастомізація виділення тексту */
+::selection {
+  background-color: #F59E0B; /* Ваш Brand Glow (жовтуватий) */
+  color: #1C1917;            /* Темний текст для контрасту */
+}
+
+/* Для Firefox (іноді потрібно окремо) */
+::-moz-selection {
+  background-color: #F59E0B;
+  color: #1C1917;
+}
+
+/* src/styles.css */
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: 'Montserrat', 'Roboto', sans-serif;
+    /* Градієнтний фон: від "Deep Loam" до темнішого відтінку */
+    background: linear-gradient(135deg, #2E1A12 0%, #1a0f0a 100%);
+    background-attachment: fixed; /* Щоб фон не рухався при прокрутці */
+    color: #ffffff;
+    min-height: 100vh;
 }
 
-@layer utilities {
-  .glow-effect {
-    position: relative;
-    overflow: hidden;
-  }
+/* Примусово робимо назву організації білою */
+h1, h1 span {
+    color: #ffffff !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important; /* Важливо для Safari/Chrome */
+    background-clip: border-box !important;
+    -webkit-background-clip: border-box !important;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Легка тінь для читабельності */
 }
 
-/* Shiny Button CSS Properties (Houdini API) */
-@property --gradient-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+/* Переконаємося, що підзаголовки теж читабельні */
+p, span, div {
+    color: #ffffff; /* Базовий білий для всього тексту */
 }
 
-@property --gradient-angle-offset {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
+/* Кнопки залишаємо як є, але переконаємося, що текст на них читається */
+button {
+    text-shadow: none;
+}
+/* src/styles.css */
+
+/* --- ФІКС ДЛЯ ПАНЕЛІ ТАБІВ (Аналітика/Новини/Дайджести) --- */
+
+/* 1. Знаходимо кнопки, що лежать всередині світлого блоку .bg-slate-100 */
+.bg-slate-100 button::selection {
+    background-color: #F59E0B !important; /* Помаранчевий фон */
+    color: #000000 !important;           /* ЧОРНИЙ текст (Black) */
+    -webkit-text-fill-color: #000000 !important; /* Фікс для Chrome/Safari */
+    text-shadow: none !important;
 }
 
-@property --gradient-percent {
-  syntax: "<percentage>";
-  initial-value: 5%;
-  inherits: false;
+/* 2. Те саме для Firefox */
+.bg-slate-100 button::-moz-selection {
+    background-color: #F59E0B !important;
+    color: #000000 !important;
 }
 
-@property --gradient-shine {
-  syntax: "<color>";
-  initial-value: white;
-  inherits: false;
+/* 3. Додаткова страховка: якщо текст самих кнопок став білим через глобальні стилі */
+.bg-slate-100 button.text-slate-500 {
+    color: #64748b !important; /* Повертаємо сірий колір для неактивних кнопок */
+    -webkit-text-fill-color: #64748b !important;
+}
+/* src/styles.css */
+
+/* --- ФІКС ДЛЯ СВІТЛИХ КНОПОК (АНАЛІТИКА/НОВИНИ) --- */
+
+/* 1. Знаходимо кнопки всередині світлого контейнера */
+.bg-slate-100 button {
+    /* Скидаємо глобальний білий колір, щоб працювали класи Tailwind */
+    color: unset !important;
+    -webkit-text-fill-color: unset !important;
+    text-shadow: none !important;
+}
+
+/* 2. Примусово фарбуємо АКТИВНУ кнопку (яка має клас text-brand-orange) в помаранчевий */
+.bg-slate-100 button.text-brand-orange {
+    color: #000000 !important; /* Помаранчевий колір */
+}
+
+/* 3. Примусово фарбуємо НЕАКТИВНІ кнопки (text-slate-500) в сірий */
+.bg-slate-100 button.text-slate-500 {
+    color: #64748b !important; /* Темно-сірий колір */
+}
+
+/* 4. Виправляємо виділення тексту (щоб було чорним) */
+.bg-slate-100 button::selection {
+    background-color: #000000 !important;
+    color: #000000 !important; /* ЧОРНИЙ текст при виділенні */
+    -webkit-text-fill-color: #000000 !important;
+}
+
+/* Для Firefox */
+.bg-slate-100 button::-moz-selection {
+    background-color: #000000 !important;
+    color: #000000 !important;
 }

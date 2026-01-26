@@ -4,9 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Центр економіко-правової аналітики</title>
+  
   <base href="/">
+
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-dark': '#1a100a',   /* Найтемніший (верхній кут) */
+            'brand-brown': '#2E1A12',  /* Основний коричневий (центр) */
+            'brand-orange': '#D97736', /* Акцентний помаранчевий */
+          }
+        }
+      }
+    }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -17,9 +37,15 @@
     html {
       scroll-behavior: smooth;
     }
+    /* Робимо виділення тексту помаранчевим */
+    ::selection {
+      background-color: #D97736;
+      color: #000000;
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+
+<body class="bg-gradient-to-br from-[#1a100a] via-[#2E1A12] to-black min-h-screen text-white antialiased">
   <app-root></app-root>
 </body>
 </html>
