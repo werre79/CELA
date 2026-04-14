@@ -90,9 +90,10 @@ import { Router } from '@angular/router';
             <div #editor 
                  contenteditable="true" 
                  (input)="onEditorInput($event)"
+                 (paste)="onPaste($event)"
                  class="w-full bg-white/5 border border-white/20 rounded-b-xl p-6 text-white text-lg focus:border-primary focus:outline-none min-h-[300px] max-h-[600px] overflow-y-auto prose prose-invert max-w-none">
             </div>
-            <p class="text-xs text-stone-500 mt-2">* Форматування при вставці збережеться.</p>
+            <p class="text-xs text-stone-500 mt-2">* При вставці тексту з Word форматування буде очищено для уникнення накладань.</p>
           </div>
 
           <!-- Main Image -->
@@ -261,6 +262,16 @@ export class AdminProjectComponent implements OnInit {
     const target = event.target as HTMLElement;
     this.formData.details = target.innerHTML;
   }
+
+  onPaste(event: ClipboardEvent) {
+    event.preventDefault();
+    const text = event.clipboardData?.getData('text/plain') || '';
+
+    // Instead of raw text, we replace double newlines with paragraphs and single newlines with br
+    // But since execCommand insertText escapes HTML, we can just insert plain text and it will preserve line breaks
+    // as text nodes and <br>s inside the contenteditable.
+    document.execCommand('insertText', false, text);
+  }
   // ------------------------
 
   generateSlug() {
@@ -320,6 +331,16 @@ export class AdminProjectComponent implements OnInit {
     }
     this.isSubmitting = true;
     try {
+      // Auto-generate slug if it is empty
+      if (!this.formData.slug) {
+        this.generateSlug();
+
+        // If it's still empty for some reason (e.g. only symbols), generate a random one
+        if (!this.formData.slug) {
+          this.formData.slug = 'project-' + Date.now();
+        }
+      }
+
       const imageUrl = await this.data.uploadFile(this.selectedFile);
       const galleryUrls: string[] = [];
       for (const file of this.galleryFiles) {

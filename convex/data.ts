@@ -10,11 +10,25 @@ export const getNews = query({
   },
 });
 
+export const getNewsById = query({
+  args: { id: v.id("news") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 // Publications
 export const getPublications = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("publications").withIndex("by_createdAt").order("desc").collect();
+  },
+});
+
+export const getPublicationById = query({
+  args: { id: v.id("publications") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });
 

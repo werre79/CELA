@@ -5,11 +5,14 @@ import { AdminProjectComponent } from './components/admin-project.component';
 import { LoginComponent } from './components/login.component';
 import { AdminTeamComponent } from './components/admin-team.component';
 import { PublicationsComponent } from './components/publications.component';
+import { ArticleDetailsComponent } from './components/article-details.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'publications', component: PublicationsComponent },
+  { path: 'news/:id', component: ArticleDetailsComponent },
+  { path: 'publication/:id', component: ArticleDetailsComponent },
   { path: 'project/:id', component: ProjectDetailsComponent },
   { path: 'login', component: LoginComponent },
   { path: 'admin/add', component: AdminProjectComponent, canActivate: [authGuard] },
