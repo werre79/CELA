@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
@@ -15,10 +15,32 @@ import { Router } from '@angular/router';
       <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[100px] -z-10"></div>
 
       <div class="max-w-4xl mx-auto px-6 relative z-10">
-        <h2 class="text-3xl font-serif text-white mb-8">Додати новий проєкт</h2>
 
-        <form (ngSubmit)="onSubmit()" class="glass-panel p-8 rounded-glass border border-white/10 space-y-6">
-          
+        <!-- Header & User Info -->
+        <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+          <h2 class="text-3xl font-serif text-white">Адмін Панель</h2>
+          <div class="flex items-center gap-4">
+             <span class="text-stone-400 text-sm">Ввійшов як: <strong class="text-white">{{ currentUser()?.email }}</strong></span>
+             <button (click)="logout()" class="text-xs px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors">Вийти</button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-4 mb-8">
+           <button (click)="activeTab.set('project')"
+                   [class.bg-primary]="activeTab() === 'project'" [class.bg-white_10]="activeTab() !== 'project'"
+                   class="px-6 py-2 rounded-xl text-white font-bold transition-colors border border-white/10">Додати Проєкт</button>
+           <button (click)="activeTab.set('news')"
+                   [class.bg-primary]="activeTab() === 'news'" [class.bg-white_10]="activeTab() !== 'news'"
+                   class="px-6 py-2 rounded-xl text-white font-bold transition-colors border border-white/10">Додати Новину</button>
+           <button (click)="activeTab.set('publication')"
+                   [class.bg-primary]="activeTab() === 'publication'" [class.bg-white_10]="activeTab() !== 'publication'"
+                   class="px-6 py-2 rounded-xl text-white font-bold transition-colors border border-white/10">Додати Публікацію</button>
+        </div>
+
+        <!-- Add Project Form -->
+        @if (activeTab() === 'project') {
+        <form (ngSubmit)="onSubmitProject()" class="glass-panel p-8 rounded-glass border border-white/10 space-y-6">
           <!-- Title -->
           <div>
             <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Назва проєкту</label>
@@ -58,8 +80,6 @@ import { Router } from '@angular/router';
           <!-- FULL DETAILS (RICH TEXT) -->
           <div>
             <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Повний опис (Можна вставляти з Word)</label>
-            
-            <!-- Toolbar -->
             <div class="flex gap-2 mb-2 p-2 bg-white/5 rounded-t-xl border border-white/10">
                <button type="button" (click)="execCommand('bold')" class="p-2 text-white hover:bg-white/10 rounded" title="Bold"><b>B</b></button>
                <button type="button" (click)="execCommand('italic')" class="p-2 text-white hover:bg-white/10 rounded" title="Italic"><i>I</i></button>
@@ -67,8 +87,6 @@ import { Router } from '@angular/router';
                <button type="button" (click)="execCommand('formatBlock', 'h3')" class="p-2 text-white hover:bg-white/10 rounded" title="Heading">H3</button>
                <button type="button" (click)="execCommand('removeFormat')" class="p-2 text-white hover:bg-white/10 rounded" title="Clean Scale"><span class="material-icons-round text-sm">format_clear</span></button>
             </div>
-
-            <!-- Content Editable Div -->
             <div #editor 
                  contenteditable="true" 
                  (input)="onEditorInput($event)"
@@ -80,7 +98,7 @@ import { Router } from '@angular/router';
           <!-- Main Image -->
           <div>
             <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Головне фото</label>
-            <input type="file" (change)="onFileSelected($event)" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-glow">
+            <input type="file" (change)="onFileSelected($event, 'main')" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-glow">
             @if (previews().main) {
                <div class="mt-4 rounded-xl overflow-hidden border border-white/10 w-48 aspect-video relative group">
                   <img [src]="previews().main" class="w-full h-full object-cover">
@@ -92,7 +110,6 @@ import { Router } from '@angular/router';
            <div class="pt-6 border-t border-white/10">
             <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Галерея (додаткові фото)</label>
             <input type="file" multiple (change)="onGallerySelected($event)" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-stone-700 file:text-white hover:file:bg-stone-600">
-            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                @for (src of previews().gallery; track src) {
                   <div class="rounded-xl overflow-hidden border border-white/10 aspect-square relative group">
@@ -106,23 +123,93 @@ import { Router } from '@angular/router';
           <div class="pt-8">
             <button type="submit" [disabled]="isSubmitting" 
                     class="w-full py-4 bg-primary hover:bg-primary-glow disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg transition-all uppercase tracking-wider flex items-center justify-center gap-2">
-              @if (isSubmitting) {
-                <span class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Публікація...
-              } @else {
-                Опублікувати проєкт
-              }
+              {{ isSubmitting ? 'Публікація...' : 'Опублікувати проєкт' }}
             </button>
           </div>
-
         </form>
+        }
+
+        <!-- Add News Form -->
+        @if (activeTab() === 'news') {
+        <form (ngSubmit)="onSubmitNews()" class="glass-panel p-8 rounded-glass border border-white/10 space-y-6">
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Заголовок новини</label>
+            <input type="text" [(ngModel)]="newsData.title" name="newsTitle" required
+                   class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none transition-colors">
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Опис</label>
+            <textarea [(ngModel)]="newsData.desc" name="newsDesc" rows="4" required
+                      class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Дата (наприклад: 2024-03-15)</label>
+            <input type="date" [(ngModel)]="newsData.date" name="newsDate" required
+                   class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none transition-colors">
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Фото новини (необов'язково)</label>
+            <input type="file" (change)="onFileSelected($event, 'news')" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-glow">
+            @if (previews().news) {
+               <div class="mt-4 rounded-xl overflow-hidden border border-white/10 w-48 aspect-video relative group">
+                  <img [src]="previews().news" class="w-full h-full object-cover">
+               </div>
+            }
+          </div>
+          <div class="pt-8">
+            <button type="submit" [disabled]="isSubmitting"
+                    class="w-full py-4 bg-primary hover:bg-primary-glow disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg transition-all uppercase tracking-wider flex items-center justify-center gap-2">
+              {{ isSubmitting ? 'Збереження...' : 'Додати новину' }}
+            </button>
+          </div>
+        </form>
+        }
+
+        <!-- Add Publication/Digest Form -->
+        @if (activeTab() === 'publication') {
+        <form (ngSubmit)="onSubmitPublication()" class="glass-panel p-8 rounded-glass border border-white/10 space-y-6">
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Заголовок публікації</label>
+            <input type="text" [(ngModel)]="pubData.title" name="pubTitle" required
+                   class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none transition-colors">
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Категорія</label>
+            <select [(ngModel)]="pubData.category" name="pubCat"
+                    class="w-full bg-stone-800 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none">
+              <option value="Аналітичні звіти">Аналітичний звіт</option>
+              <option value="Дайджест">Дайджест</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Короткий опис</label>
+            <textarea [(ngModel)]="pubData.desc" name="pubDesc" rows="3" required
+                      class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Посилання (Лінк)</label>
+            <input type="text" [(ngModel)]="pubData.link" name="pubLink"
+                   class="w-full bg-white/5 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none transition-colors">
+          </div>
+          <div class="pt-8">
+            <button type="submit" [disabled]="isSubmitting"
+                    class="w-full py-4 bg-primary hover:bg-primary-glow disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg transition-all uppercase tracking-wider flex items-center justify-center gap-2">
+              {{ isSubmitting ? 'Збереження...' : 'Додати публікацію' }}
+            </button>
+          </div>
+        </form>
+        }
+
       </div>
     </div>
   `
 })
-export class AdminProjectComponent {
+export class AdminProjectComponent implements OnInit {
   private data = inject(DataService);
   private router = inject(Router);
+
+  currentUser = signal<{email: string} | null>(null);
+  activeTab = signal<'project' | 'news' | 'publication'>('project');
 
   formData = {
     title: '',
@@ -132,12 +219,38 @@ export class AdminProjectComponent {
     type: 'donor'
   };
 
+  newsData = {
+    title: '',
+    desc: '',
+    date: new Date().toISOString().split('T')[0],
+  };
+
+  pubData = {
+    title: '',
+    category: 'Аналітичні звіти',
+    desc: '',
+    link: ''
+  };
+
   selectedFile: File | null = null;
+  newsFile: File | null = null;
   galleryFiles: File[] = [];
 
-  // Signals for UI
   isSubmitting = false;
-  previews = signal<{ main: string | null, gallery: string[] }>({ main: null, gallery: [] });
+  previews = signal<{ main: string | null, gallery: string[], news: string | null }>({ main: null, gallery: [], news: null });
+
+  async ngOnInit() {
+    const user = await this.data.getCurrentUser();
+    this.currentUser.set(user);
+    if (!user) {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  async logout() {
+    await this.data.logout();
+    this.router.navigate(['/login']);
+  }
 
   // --- Rich Text Helper ---
   execCommand(command: string, value: string | undefined = undefined) {
@@ -168,16 +281,20 @@ export class AdminProjectComponent {
     }).join('').replace(/-+/g, '-');
   }
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any, type: 'main' | 'news') {
     const file = event.target.files[0];
     if (file) {
-      this.selectedFile = file;
-      // Show preview
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previews.update(p => ({ ...p, main: e.target.result }));
-      };
-      reader.readAsDataURL(file);
+      if (type === 'main') {
+        this.selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (e: any) => this.previews.update(p => ({ ...p, main: e.target.result }));
+        reader.readAsDataURL(file);
+      } else {
+        this.newsFile = file;
+        const reader = new FileReader();
+        reader.onload = (e: any) => this.previews.update(p => ({ ...p, news: e.target.result }));
+        reader.readAsDataURL(file);
+      }
     }
   }
 
@@ -185,59 +302,90 @@ export class AdminProjectComponent {
     if (event.target.files) {
       const files = Array.from(event.target.files) as File[];
       this.galleryFiles = files;
-
-      // Clear old gallery previews
       this.previews.update(p => ({ ...p, gallery: [] }));
-
-      // Generate new previews
       files.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e: any) => {
-          this.previews.update(p => ({
-            ...p,
-            gallery: [...p.gallery, e.target.result]
-          }));
+          this.previews.update(p => ({ ...p, gallery: [...p.gallery, e.target.result] }));
         };
         reader.readAsDataURL(file);
       });
     }
   }
 
-  async onSubmit() {
+  async onSubmitProject() {
     if (!this.formData.title || !this.selectedFile) {
       alert('Будь ласка, заповніть назву та додайте головне фото.');
       return;
     }
-
     this.isSubmitting = true;
-
     try {
-      // 1. Upload Main Image
       const imageUrl = await this.data.uploadFile(this.selectedFile);
-
-      // 2. Upload Gallery
       const galleryUrls: string[] = [];
       for (const file of this.galleryFiles) {
         const uploaded = await this.data.uploadFile(file);
         galleryUrls.push(uploaded);
       }
-
-      // 3. Create Project Document
       await this.data.createProject({
         title: this.formData.title,
-        slug: this.formData.slug, // Save SLUG!
+        slug: this.formData.slug,
         desc: this.formData.desc,
-        details: this.formData.details, // Save HTML
+        details: this.formData.details,
         type: this.formData.type,
         image: imageUrl,
-        gallery: galleryUrls, // Save Gallery
+        gallery: galleryUrls,
         date: new Date().toISOString()
       });
-
+      alert('Проєкт успішно створено!');
       this.router.navigate(['/']);
     } catch (error) {
       console.error('Error creating project', error);
       alert('Помилка при створенні проєкту');
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
+  async onSubmitNews() {
+    if (!this.newsData.title) {
+      alert('Будь ласка, заповніть назву.');
+      return;
+    }
+    this.isSubmitting = true;
+    try {
+      let imageUrl = null;
+      if (this.newsFile) {
+        imageUrl = await this.data.uploadFile(this.newsFile);
+      }
+      await this.data.addNews({
+        ...this.newsData,
+        image: imageUrl
+      });
+      alert('Новину успішно додано!');
+      this.newsData = { title: '', desc: '', date: new Date().toISOString().split('T')[0] };
+      this.newsFile = null;
+      this.previews.update(p => ({ ...p, news: null }));
+    } catch (error) {
+      console.error('Error creating news', error);
+      alert('Помилка при створенні новини');
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
+  async onSubmitPublication() {
+    if (!this.pubData.title) {
+      alert('Будь ласка, заповніть назву.');
+      return;
+    }
+    this.isSubmitting = true;
+    try {
+      await this.data.addPublication(this.pubData);
+      alert('Публікацію успішно додано!');
+      this.pubData = { title: '', desc: '', link: '', category: 'Аналітичні звіти' };
+    } catch (error) {
+      console.error('Error creating publication', error);
+      alert('Помилка при створенні публікації');
     } finally {
       this.isSubmitting = false;
     }
