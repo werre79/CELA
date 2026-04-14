@@ -100,12 +100,30 @@ export class DataService {
     }
   }
 
+  async getNewsById(id: string): Promise<any | null> {
+    try {
+      const doc = await this.convex.query('data:getNewsById' as any, { id });
+      return doc ? { $id: doc._id, ...doc } : null;
+    } catch {
+      return null;
+    }
+  }
+
   async getPublications(): Promise<any[]> {
     try {
       const docs = await this.convex.query('data:getPublications' as any);
       return docs.map((doc: any) => ({ $id: doc._id, ...doc }));
     } catch {
       return [];
+    }
+  }
+
+  async getPublicationById(id: string): Promise<any | null> {
+    try {
+      const doc = await this.convex.query('data:getPublicationById' as any, { id });
+      return doc ? { $id: doc._id, ...doc } : null;
+    } catch {
+      return null;
     }
   }
 

@@ -1,12 +1,13 @@
 import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslationService } from '../services/translation.service';
 import { DataService } from '../services/data.service';
 
 @Component({
    selector: 'app-publications',
    standalone: true,
-   imports: [CommonModule, DatePipe],
+   imports: [CommonModule, DatePipe, RouterLink],
    template: `
     <section id="publications" class="py-24 relative">
       <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -69,9 +70,9 @@ import { DataService } from '../services/data.service';
                           <span class="material-icons-round text-lg">download</span> {{ ts.t().publications.downloadPdf }}
                         </a>
                       } @else {
-                        <span class="text-white font-bold text-sm group-hover:text-primary-glow transition-colors flex items-center gap-2 cursor-pointer">
+                        <a [routerLink]="[activeFilter() === 'news' ? '/news' : '/publication', item.$id]" class="text-white font-bold text-sm group-hover:text-primary-glow transition-colors flex items-center gap-2 cursor-pointer">
                           {{ ts.t().publications.readArticle }} <span class="material-icons-round text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                        </span>
+                        </a>
                       }
                    </div>
                 </div>
