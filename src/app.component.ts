@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet } from '@angular/router'; // <-- Важливо
+import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar.component';
 import { FooterComponent } from './components/footer.component';
 
@@ -8,7 +8,7 @@ import { FooterComponent } from './components/footer.component';
   standalone: true,
   imports: [
     NavbarComponent,
-    RouterOutlet, // <-- Це місце, де міняються сторінки
+    RouterOutlet,
     FooterComponent
   ],
   template: `

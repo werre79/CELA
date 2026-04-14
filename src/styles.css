@@ -2,128 +2,298 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Глобальний фон і колір тексту */
-body {
-    background-color: rgb(38, 25, 16); /* Насичений темно-коричневий колір */
-    color: rgb(255, 255, 255); /* Основний текст стає білим для контрасту */
+/* ─────────────────────────────────────────────────────────
+   GOOGLE FONTS
+   ───────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+/* ─────────────────────────────────────────────────────────
+   BASE
+   ───────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-color: #101115;
+    color: #C9C7C3;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
+    @apply min-h-screen overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
 }
 
-/* Плавна прокрутка */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Стилізація скролбару (щоб виглядав дорого) */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: #1C1917;
-}
-::-webkit-scrollbar-thumb {
-  background: #292524;
-  border-radius: 5px;
-  border: 1px solid #1C1917;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #B45309;
-}
-
-/* Кастомізація виділення тексту */
+/* ─────────────────────────────────────────────────────────
+   SELECTION
+   ───────────────────────────────────────────────────────── */
 ::selection {
-  background-color: #F59E0B; /* Ваш Brand Glow (жовтуватий) */
-  color: #1C1917;            /* Темний текст для контрасту */
+  background: rgba(196, 98, 45, 0.35);
+  color: #F5F0EA;
 }
 
-/* Для Firefox (іноді потрібно окремо) */
-::-moz-selection {
-  background-color: #F59E0B;
-  color: #1C1917;
+/* ─────────────────────────────────────────────────────────
+   SCROLLBAR
+   ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #101115; }
+::-webkit-scrollbar-thumb { background: #3A3A4A; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #5A5A68; }
+
+/* ─────────────────────────────────────────────────────────
+   ██ ANIMATED HERO BACKGROUND SYSTEM
+   ───────────────────────────────────────────────────────── */
+
+/* The hero canvas — the living background layer */
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  /* Base dark: deep, slightly blue-tinted black */
+  background-color: #0E0F13;
 }
 
-/* src/styles.css */
-
-body {
-    /* Градієнтний фон: від "Deep Loam" до темнішого відтінку */
-    background: linear-gradient(135deg, #2E1A12 0%, #1a0f0a 100%);
-    background-attachment: fixed; /* Щоб фон не рухався при прокрутці */
-    color: #ffffff;
-    min-height: 100vh;
+/* Animated gradient blob 1 — warm terracotta, slow drift */
+.hero-blob-1 {
+  position: absolute;
+  width: 70vw;
+  height: 70vw;
+  max-width: 720px;
+  max-height: 720px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(180, 68, 32, 0.18) 0%, transparent 70%);
+  filter: blur(90px);
+  top: -20%;
+  left: -15%;
+  animation: blobDrift1 18s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
-/* Примусово робимо назву організації білою */
-h1, h1 span {
-    color: #ffffff !important;
-    background: none !important;
-    -webkit-text-fill-color: #ffffff !important; /* Важливо для Safari/Chrome */
-    background-clip: border-box !important;
-    -webkit-background-clip: border-box !important;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Легка тінь для читабельності */
+/* Animated gradient blob 2 — cool deep teal, counter drift */
+.hero-blob-2 {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(30, 80, 65, 0.14) 0%, transparent 68%);
+  filter: blur(110px);
+  bottom: -25%;
+  right: -10%;
+  animation: blobDrift2 22s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
-/* Переконаємося, що підзаголовки теж читабельні */
-p, span, div {
-    color: #ffffff; /* Базовий білий для всього тексту */
+/* Animated gradient blob 3 — mid-accent, subtle violet-slate */
+.hero-blob-3 {
+  position: absolute;
+  width: 40vw;
+  height: 40vw;
+  max-width: 440px;
+  max-height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(60, 55, 90, 0.12) 0%, transparent 65%);
+  filter: blur(80px);
+  top: 40%;
+  left: 35%;
+  animation: blobDrift3 14s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
-/* Кнопки залишаємо як є, але переконаємося, що текст на них читається */
-button {
-    text-shadow: none;
-}
-/* src/styles.css */
-
-/* --- ФІКС ДЛЯ ПАНЕЛІ ТАБІВ (Аналітика/Новини/Дайджести) --- */
-
-/* 1. Знаходимо кнопки, що лежать всередині світлого блоку .bg-slate-100 */
-.bg-slate-100 button::selection {
-    background-color: #F59E0B !important; /* Помаранчевий фон */
-    color: #000000 !important;           /* ЧОРНИЙ текст (Black) */
-    -webkit-text-fill-color: #000000 !important; /* Фікс для Chrome/Safari */
-    text-shadow: none !important;
+@keyframes blobDrift1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(6%, 8%) scale(1.06); }
+  66%  { transform: translate(-4%, 4%) scale(0.98); }
+  100% { transform: translate(8%, -6%) scale(1.04); }
 }
 
-/* 2. Те саме для Firefox */
-.bg-slate-100 button::-moz-selection {
-    background-color: #F59E0B !important;
-    color: #000000 !important;
+@keyframes blobDrift2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(-8%, -6%) scale(1.08); }
+  80%  { transform: translate(4%, -10%) scale(0.96); }
+  100% { transform: translate(-5%, 5%) scale(1.03); }
 }
 
-/* 3. Додаткова страховка: якщо текст самих кнопок став білим через глобальні стилі */
-.bg-slate-100 button.text-slate-500 {
-    color: #64748b !important; /* Повертаємо сірий колір для неактивних кнопок */
-    -webkit-text-fill-color: #64748b !important;
-}
-/* src/styles.css */
-
-/* --- ФІКС ДЛЯ СВІТЛИХ КНОПОК (АНАЛІТИКА/НОВИНИ) --- */
-
-/* 1. Знаходимо кнопки всередині світлого контейнера */
-.bg-slate-100 button {
-    /* Скидаємо глобальний білий колір, щоб працювали класи Tailwind */
-    color: unset !important;
-    -webkit-text-fill-color: unset !important;
-    text-shadow: none !important;
+@keyframes blobDrift3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(10%, -8%) scale(1.1); }
+  100% { transform: translate(-6%, 6%) scale(0.94); }
 }
 
-/* 2. Примусово фарбуємо АКТИВНУ кнопку (яка має клас text-brand-orange) в помаранчевий */
-.bg-slate-100 button.text-brand-orange {
-    color: #000000 !important; /* Помаранчевий колір */
+/* Fine grid overlay — premium editorial texture */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: gridShift 40s linear infinite;
 }
 
-/* 3. Примусово фарбуємо НЕАКТИВНІ кнопки (text-slate-500) в сірий */
-.bg-slate-100 button.text-slate-500 {
-    color: #64748b !important; /* Темно-сірий колір */
+@keyframes gridShift {
+  from { background-position: 0 0; }
+  to   { background-position: 64px 64px; }
 }
 
-/* 4. Виправляємо виділення тексту (щоб було чорним) */
-.bg-slate-100 button::selection {
-    background-color: #000000 !important;
-    color: #000000 !important; /* ЧОРНИЙ текст при виділенні */
-    -webkit-text-fill-color: #000000 !important;
+/* Noise grain — top layer for depth */
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.035;
+  pointer-events: none;
 }
 
-/* Для Firefox */
-.bg-slate-100 button::-moz-selection {
-    background-color: #000000 !important;
-    color: #000000 !important;
+/* Thin vertical terracotta accent line — left edge, animated fade-in */
+.hero-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg,
+    transparent 5%,
+    rgba(196, 98, 45, 0.5) 30%,
+    rgba(232, 148, 90, 0.6) 55%,
+    rgba(196, 98, 45, 0.4) 75%,
+    transparent 95%);
+  animation: spineGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes spineGlow {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────
+   HERO TYPOGRAPHY ANIMATIONS
+   ───────────────────────────────────────────────────────── */
+.hero-badge {
+  opacity: 0;
+  animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+.hero-title-line1 {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: revealClip 1s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+}
+
+.hero-title-line2 {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: revealClip 1s cubic-bezier(0.16, 1, 0.3, 1) 0.65s forwards;
+}
+
+.hero-body {
+  opacity: 0;
+  animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+}
+
+.hero-ctas {
+  opacity: 0;
+  animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+}
+
+.hero-bottom {
+  opacity: 0;
+  animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealClip {
+  from { opacity: 1; clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; clip-path: inset(0 0 0% 0); }
+}
+
+/* Floating marquee stripe */
+.hero-marquee-track {
+  display: flex;
+  gap: 48px;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────────────────── */
+.btn-terra {
+  background: linear-gradient(135deg, #C4622D 0%, #D97736 100%);
+  color: #FDFCFA;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+}
+.btn-terra::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.btn-terra:hover::after { opacity: 1; }
+.btn-terra:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(196, 98, 45, 0.3);
+}
+
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #D6D3D1;
+  transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.11);
+  border-color: rgba(255,255,255,0.28);
+  color: #F5F0EA;
+  transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────────────────────
+   NAVBAR GLASS
+   ───────────────────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(14, 15, 19, 0.72);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 4px 28px rgba(0,0,0,0.4);
+}
+
+.navbar-scrolled {
+  background: rgba(10, 11, 14, 0.90) !important;
+  border-color: rgba(255,255,255,0.05) !important;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.5) !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   TERRA GRADIENT TEXT (accent word)
+   ───────────────────────────────────────────────────────── */
+.terra-text {
+  background: linear-gradient(135deg, #E8945A 0%, #C4622D 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }

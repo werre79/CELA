@@ -1,71 +1,165 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AppwriteService } from '../services/appwrite.service';
+import { DataService } from '../services/data.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { SecurityContext } from '@angular/core';
 
 @Component({
   selector: 'app-project-details',
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-[#FBF7F1] pt-32 pb-20 text-[#2D241E]">
+    <!-- ROOT: Main scroll container (Remove overflow-hidden from here to allow sticky) -->
+    <div class="min-h-screen bg-[#1c1917] relative">
       
+      <!-- FIXED BACKGROUND LAYER (Handles overflow for blobs) -->
+      <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <div class="absolute top-[-10%] right-[-10%] w-[800px] h-[800px] bg-accent/15 rounded-full blur-[120px] mix-blend-screen animate-blob"></div>
+          <div class="absolute bottom-[-10%] left-[-10%] w-[800px] h-[800px] bg-accent/10 rounded-full blur-[120px] mix-blend-screen animate-blob animation-delay-2000"></div>
+          <div class="absolute top-[20%] left-[20%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] mix-blend-screen animate-float"></div>
+          <div class="absolute inset-0 bg-[url('/assets/noise.png')] opacity-10"></div>
+      </div>
+
       @if (isLoading()) {
-        <div class="flex flex-col justify-center items-center h-64 gap-4">
-          <div class="w-12 h-12 border-4 border-[#A05A2C] border-t-transparent rounded-full animate-spin"></div>
-          <span class="text-[#6B5D52] font-medium tracking-widest text-sm uppercase">Завантаження...</span>
+        <div class="flex flex-col justify-center items-center h-screen gap-4 relative z-10">
+          <div class="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-accent/80 font-serif tracking-widest text-sm uppercase">Завантаження...</span>
         </div>
       }
 
       @if (!isLoading() && project()) {
-        <article class="max-w-4xl mx-auto px-4 sm:px-6">
+        <!-- ARTICLE: Increased width to 95% for "100% layout" feel -->
+        <article class="w-[95%] max-w-[1800px] mx-auto pt-24 pb-20 px-4 sm:px-6 relative z-10 animate-fade-in">
           
-          <a routerLink="/" fragment="projects" class="inline-flex items-center text-[#A05A2C] font-bold hover:underline mb-8 transition-colors">
-            <span class="material-icons-round mr-2">arrow_back</span>
-            Назад до проєктів
-          </a>
+          <!-- Navigation -->
+          <nav class="flex items-center justify-between mb-8">
+            <a routerLink="/" fragment="projects" class="inline-flex items-center text-stone-400 hover:text-white transition-colors group">
+              <span class="material-icons-round mr-2 text-2xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              <span class="uppercase tracking-widest text-sm font-bold">Усі проєкти</span>
+            </a>
+          </nav>
 
-          <div *ngIf="project().image" class="rounded-[24px] overflow-hidden shadow-lg mb-10 w-full aspect-video relative group">
-            <img [src]="project().image" [alt]="project().title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-            <div class="absolute inset-0 bg-gradient-to-t from-[#2D241E]/30 to-transparent"></div>
-          </div>
-
-          <div class="bg-white rounded-[24px] p-8 md:p-12 shadow-sm border border-[#A05A2C]/10">
+          <!-- MAIN LAYOUT: Single Vertical Column (Everything Full Width) -->
+          <div class="w-full flex flex-col gap-16 md:gap-24">
             
-            <div class="flex gap-2 mb-6">
-              <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FBF7F1] text-[#A05A2C] border border-[#A05A2C]/20">
-                {{ project().type === 'donor' ? 'Донорський проєкт' : 'Pro Bono' }}
-              </span>
+            <!-- TOP SECTION: Header + Gallery + Text -->
+            <div class="w-full flex flex-col gap-10">
+              
+              <!-- Header -->
+              <header class="text-left animate-slide-up">
+                 <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-accent/20 text-accent border border-accent/20 shadow-[0_0_15px_rgba(217,119,54,0.2)] mb-4 inline-block">
+                    {{ project().type === 'donor' ? 'Донорський проєкт' : 'Pro Bono' }}
+                 </span>
+                 <h1 class="text-4xl md:text-5xl lg:text-7xl font-serif text-white drop-shadow-2xl leading-tight">
+                    {{ project().title }}
+                 </h1>
+              </header>
+
+              <!-- HERO GALLERY CAROUSEL (Full Width) -->
+              <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-xl relative group w-full">
+                
+                <!-- Main Display Area -->
+                <div class="relative w-full aspect-video md:aspect-[21/9] bg-[#0c0a09] flex items-center justify-center select-none">
+                  
+                  <!-- Current Image -->
+                  <img [src]="currentImage()" class="max-w-full max-h-full object-contain transition-opacity duration-300 drop-shadow-2xl" 
+                       [class.opacity-100]="!isTransitioning()" [class.opacity-0]="isTransitioning()">
+                  
+                  <!-- Navigation -->
+                  <button (click)="prevImage()" class="absolute left-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
+                    <span class="material-icons-round text-3xl">chevron_left</span>
+                  </button>
+                  <button (click)="nextImage()" class="absolute right-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
+                    <span class="material-icons-round text-3xl">chevron_right</span>
+                  </button>
+                </div>
+
+                <!-- Thumbnail Strip -->
+                @if (allImages().length > 1) {
+                  <div class="py-6 px-4 bg-[#151210] border-t border-white/5 overflow-x-auto custom-scrollbar">
+                     <div class="flex gap-4 min-w-max px-4 mx-auto">
+                        @for (img of allImages(); track img; let i = $index) {
+                           <button (click)="setImage(i)" 
+                                   class="relative w-24 h-16 md:w-32 md:h-20 rounded-lg overflow-hidden transition-all duration-300 border-2"
+                                   [class.border-accent]="i === activeIndex()"
+                                   [class.shadow-[0_0_20px_rgba(217,119,54,0.4)]]="i === activeIndex()"
+                                   [class.opacity-40]="i !== activeIndex()"
+                                   [class.hover:opacity-80]="i !== activeIndex()"
+                                   [class.border-transparent]="i !== activeIndex()">
+                              <img [src]="img" class="w-full h-full object-cover">
+                           </button>
+                        }
+                     </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Main Text Panel (Full Width) -->
+              <div class="glass-panel p-8 md:p-16 rounded-3xl border border-white/5 bg-stone-900/30">
+                 <p class="text-xl md:text-3xl text-stone-200 mb-16 leading-relaxed font-light border-l-4 border-accent pl-10 italic max-w-5xl">
+                  {{ project().desc }}
+                </p>
+
+                <div class="prose prose-xl md:prose-2xl prose-invert max-w-none text-stone-300 leading-loose prose-headings:font-serif prose-headings:text-white prose-a:text-accent prose-strong:text-white prose-li:marker:text-accent">
+                   <div [innerHTML]="sanitizedDetails"></div>
+                </div>
+              </div>
+            
             </div>
 
-            <h1 class="text-3xl md:text-5xl font-bold mb-6 leading-tight font-serif text-[#2D241E]">
-              {{ project().title }}
-            </h1>
+            <!-- BOTTOM SECTION: Support & Share -->
+            <div class="grid md:grid-cols-2 gap-8 w-full animate-slide-up-delay">
+               <!-- Support Card -->
+               <div class="glass-panel p-10 rounded-3xl border border-white/5 bg-accent/10 backdrop-blur-xl shadow-2xl flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-4 mb-6">
+                      <div class="w-16 h-16 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                         <span class="material-icons-round text-4xl">volunteer_activism</span>
+                      </div>
+                      <h3 class="text-3xl font-serif text-white">Підтримати проєкт</h3>
+                    </div>
+                    
+                    <p class="text-stone-300 text-lg mb-10 leading-relaxed">
+                      Ваша підтримка є вирішальною для нас. Долучайтеся до створення змін та допоможіть нам реалізувати цілі цього проєкту.
+                    </p>
+                  </div>
+                  
+                  <button class="w-full py-6 bg-accent hover:bg-accent-glow text-white font-bold rounded-2xl shadow-[0_4px_30px_rgba(217,119,54,0.4)] hover:shadow-[0_8px_40px_rgba(217,119,54,0.6)] hover:-translate-y-1 transition-all uppercase tracking-widest text-lg flex items-center justify-center gap-3 group">
+                    <span>Підтримати зараз</span>
+                    <span class="material-icons-round group-hover:scale-110 transition-transform">favorite</span>
+                  </button>
+               </div>
 
-            <p class="text-xl text-[#6B5D52] mb-8 leading-relaxed">
-              {{ project().desc }}
-            </p>
-
-            <div class="prose prose-lg prose-stone max-w-none text-[#2D241E] leading-loose">
-               <p class="whitespace-pre-line">{{ project().details || project().desc }}</p>
-            </div>
-
-            <div class="mt-12 pt-8 border-t border-[#A05A2C]/10 flex flex-col sm:flex-row gap-4">
-               <button class="px-8 py-4 bg-[#A05A2C] text-white font-bold rounded-xl shadow-lg hover:bg-[#8B4D25] hover:-translate-y-1 transition-all">
-                 Підтримати проєкт
-               </button>
+               <!-- Share Card -->
+               <div class="glass-panel p-10 rounded-3xl border border-white/5 bg-stone-900/40 flex flex-col justify-center items-center text-center">
+                  <span class="material-icons-round text-5xl text-stone-500 mb-6">share</span>
+                  <h3 class="text-2xl font-serif text-white mb-8">Поділитися проєктом</h3>
+                  <div class="flex gap-6">
+                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-primary border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                        <i class="fab fa-facebook-f text-2xl"></i>
+                     </button>
+                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-sky-400 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                        <i class="fab fa-twitter text-2xl"></i>
+                     </button>
+                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-blue-600 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                        <i class="fab fa-linkedin-in text-2xl"></i>
+                     </button>
+                  </div>
+               </div>
             </div>
 
           </div>
+
 
         </article>
       }
 
       @if (!isLoading() && !project()) {
-        <div class="text-center py-20 px-4">
-          <h2 class="text-2xl font-bold text-[#2D241E] mb-4">Проєкт не знайдено</h2>
-          <p class="text-[#6B5D52] mb-8">Можливо, він був видалений або переміщений.</p>
-          <a routerLink="/" class="text-[#A05A2C] font-bold hover:underline">Повернутися на головну</a>
+        <div class="text-center py-32 px-4 relative z-10">
+            <span class="material-icons-round text-6xl text-stone-600 mb-6">search_off</span>
+            <h2 class="text-2xl font-serif text-white mb-4">Проєкт не знайдено</h2>
+            <a routerLink="/" class="text-accent hover:text-accent-glow underline underline-offset-4">Повернутися на головну</a>
         </div>
       }
     </div>
@@ -73,26 +167,97 @@ import { AppwriteService } from '../services/appwrite.service';
 })
 export class ProjectDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private appwrite = inject(AppwriteService);
+  private data = inject(DataService);
+  private location = inject(Location);
+  private sanitizer = inject(DomSanitizer);
 
   project = signal<any>(null);
   isLoading = signal(true);
+  sanitizedDetails: string = '';
+
+  // Gallery Logic
+  activeIndex = signal(0);
+  isTransitioning = signal(false);
+
+  // Computed list of ALL images (Main + Gallery)
+  allImages = computed(() => {
+    const proj = this.project();
+    if (!proj) return [];
+
+    // Use Set to prevent duplicates if Main Image is also in Gallery
+    const uniqueImgs = new Set<string>();
+
+    if (proj.image) uniqueImgs.add(proj.image);
+
+    if (proj.gallery && Array.isArray(proj.gallery)) {
+      proj.gallery.forEach((img: string) => uniqueImgs.add(img));
+    }
+
+    return Array.from(uniqueImgs);
+  });
+
+  currentImage = computed(() => {
+    const images = this.allImages();
+    if (images.length === 0) return '';
+    return images[this.activeIndex()];
+  });
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    
+
     if (id) {
       try {
-        const data = await this.appwrite.getProjectById(id);
-        this.project.set(data);
+        try {
+          const data = await this.data.getProjectById(id) as any;
+          this.setProject(data);
+
+          if (data && data['slug'] && data['slug'] !== id) {
+            this.location.replaceState(`/project/${data['slug']}`);
+          }
+        } catch (e) {
+          const dataBySlug = await this.data.getProjectBySlug(id);
+          if (dataBySlug) {
+            this.setProject(dataBySlug);
+          } else {
+            throw new Error('Project not found by slug');
+          }
+        }
         window.scrollTo(0, 0);
       } catch (error) {
-        console.error('Project not found', error);
+        console.error('Project loading failed', error);
       } finally {
         this.isLoading.set(false);
       }
     } else {
       this.isLoading.set(false);
     }
+  }
+
+  private setProject(data: any) {
+    this.project.set(data);
+    const details = data.details || data.desc || '';
+    if (details.includes('<') && details.includes('>')) {
+      this.sanitizedDetails = this.sanitizer.sanitize(SecurityContext.HTML, details) ?? '';
+    } else {
+      const htmlArr = details.split('\n').filter((p: string) => p.trim() !== '').map((p: string) => `<p>${p}</p>`).join('');
+      this.sanitizedDetails = this.sanitizer.sanitize(SecurityContext.HTML, htmlArr) ?? '';
+    }
+  }
+
+  // --- Carousel Methods ---
+  prevImage() {
+    const total = this.allImages().length;
+    if (total <= 1) return;
+    this.activeIndex.update(i => (i - 1 + total) % total);
+  }
+
+  nextImage() {
+    const total = this.allImages().length;
+    if (total <= 1) return;
+    this.activeIndex.update(i => (i + 1) % total);
+  }
+
+  setImage(index: number) {
+    this.activeIndex.set(index);
   }
 }

@@ -1,13 +1,14 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
-import { routes } from './app.routes'; // Імпортуємо маршрути
+import { routes } from './app.routes';
+import { environment } from './environments/environment';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    // Підключаємо роутер
     provideRouter(routes, withInMemoryScrolling({
-        scrollPositionRestoration: 'top', // Прокручувати вгору при переході
+      scrollPositionRestoration: 'top',
+      anchorScrolling: 'enabled',
     }))
   ]
 }).catch((err) => console.error(err));

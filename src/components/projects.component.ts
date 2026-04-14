@@ -2,118 +2,94 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../services/translation.service';
-import { AppwriteService } from '../services/appwrite.service';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <section id="projects" class="py-24 bg-brand-dark relative overflow-hidden">
-      <div class="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-
-      <div class="max-w-7xl mx-auto px-4 relative z-10">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold text-brand-cream mb-4 tracking-tight">
-            {{ ts.t().projects.title }}
-          </h2>
-          <div class="h-1 w-24 bg-brand-amber mx-auto rounded-full"></div>
+    <section id="projects" class="py-24 relative">
+      <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 border-b border-white/10 pb-8">
+           <div>
+             <span class="text-stone-400 font-bold tracking-widest uppercase text-xs block mb-4 border-l-2 border-white/20 pl-3">{{ ts.t().projects.label }}</span>
+             <h2 class="font-serif font-bold text-4xl md:text-5xl text-white">{{ ts.t().projects.title }}</h2>
+           </div>
         </div>
         
         @if (isLoading()) {
           <div class="flex justify-center items-center py-20">
-            <span class="material-icons-round animate-spin text-4xl text-brand-glow">refresh</span>
+            <span class="material-icons-round animate-spin text-4xl text-white/50">refresh</span>
           </div>
         }
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(300px,auto)]">
-          
-          @for (project of projects(); track project.$id; let i = $index) {
-            <div 
-              #projectCard
-              class="group relative rounded-squircle bg-brand-charcoal border border-white/5 overflow-hidden hover:border-brand-amber/30 transition-colors duration-500"
-              [class.md:col-span-2]="i === 0 || i === 3" 
-              [class.md:row-span-2]="i === 2"
-              (mousemove)="handleMouseMove($event, projectCard)"
-            >
-              <div 
-                class="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition duration-300"
-                [style.background]="getGradientStyle(projectCard)"
-              ></div>
-
-              <div class="relative h-full flex flex-col p-8 z-10">
-                
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          @for (project of projects(); track project.$id) {
+            <div class="group flex flex-col h-full rounded-2xl overflow-hidden hover:-translate-y-2 hover:shadow-lg transition-all duration-300 bg-white/5 border border-white/10">
+              <!-- Image -->
+              <div class="h-64 overflow-hidden relative border-b border-white/10">
                 @if (project.image) {
-                  <div class="absolute inset-0 z-0">
-                    <img [src]="project.image" class="w-full h-full object-cover opacity-20 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out grayscale group-hover:grayscale-0">
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand-charcoal via-brand-charcoal/80 to-transparent transition-opacity duration-500 group-hover:opacity-60"></div>
-                  </div>
+                   <img [src]="project.image" class="w-full h-full object-cover">
+                } @else {
+                   <div class="w-full h-full bg-white/5 flex items-center justify-center text-white/20">
+                      <span class="material-icons-round text-4xl">image</span>
+                   </div>
                 }
-
-                <div class="relative z-10 mb-auto">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase border border-white/10 backdrop-blur-md"
-                    [ngClass]="project.type === 'donor' 
-                      ? 'text-brand-glow bg-brand-glow/10' 
-                      : 'text-brand-stone bg-white/5'">
+                
+                <div class="absolute top-4 left-4">
+                  <span class="inline-block px-3 py-1 bg-stone-900 border border-white/10 rounded-full text-xs font-bold uppercase tracking-wider text-white">
                     {{ project.type === 'donor' ? ts.t().projects.donors : ts.t().projects.probono }}
                   </span>
                 </div>
+              </div>
 
-                <div class="relative z-10 mt-8">
-                  <h3 class="text-2xl font-bold text-brand-cream mb-3 group-hover:text-brand-glow transition-colors">
-                    {{ project.title }}
-                  </h3>
-                  <p class="text-brand-stone line-clamp-3 mb-6 text-sm leading-relaxed group-hover:text-white/90 transition-colors">
-                    {{ project.desc }}
-                  </p>
+              <div class="p-8 flex flex-col flex-grow">
+                <h3 class="font-serif font-bold text-2xl text-white mb-3 hover:text-stone-300 transition-colors">
+                  {{ project.title }}
+                </h3>
+                <p class="font-sans text-stone-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                  {{ project.desc }}
+                </p>
 
-                  <a [routerLink]="['/project', project.$id]" 
-                     class="inline-flex items-center gap-2 text-brand-cream font-bold group/btn">
-                     Детальніше
-                     <span class="material-icons-round text-brand-amber group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
-                  </a>
+                <div class="mt-auto">
+                   <a [routerLink]="['/project', project.slug || project.$id]" 
+                      class="inline-flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider group/link hover:text-stone-300 transition-colors">
+                      {{ ts.t().projects.readCaseStudy }}
+                      <span class="material-icons-round text-sm group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+                   </a>
                 </div>
               </div>
             </div>
           }
         </div>
         
-        @if (!isLoading() && projects().length === 0) {
-          <div class="text-center py-20 border border-dashed border-brand-stone/20 rounded-squircle">
-            <p class="text-brand-stone">Проєкти скоро з'являться.</p>
+        @if (!projects().length && !isLoading()) {
+          <div class="text-center py-20 px-6 rounded-2xl border border-dashed border-white/20 bg-white/5 max-w-2xl mx-auto flex flex-col items-center mt-12">
+            <svg class="w-24 h-24 text-white/20 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <h3 class="text-xl font-serif text-white/80 mb-2">{{ ts.t().projects.title }}</h3>
+            <p class="font-sans text-stone-400">{{ ts.t().projects.empty }}</p>
           </div>
         }
-
       </div>
     </section>
   `
 })
 export class ProjectsComponent implements OnInit {
   ts = inject(TranslationService);
-  appwrite = inject(AppwriteService);
-  
+  data = inject(DataService);
+
   isLoading = signal(true);
   projects = signal<any[]>([]);
 
   async ngOnInit() {
     try {
-      const data = await this.appwrite.getProjects();
+      const data = await this.data.getProjects();
       this.projects.set(data);
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  handleMouseMove(e: MouseEvent, card: HTMLElement) {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    card.style.setProperty('--mouse-x', `${x}px`);
-    card.style.setProperty('--mouse-y', `${y}px`);
-  }
-
-  getGradientStyle(card: HTMLElement) {
-    return `radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(245, 158, 11, 0.15), transparent 40%)`;
   }
 }

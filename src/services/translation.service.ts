@@ -23,13 +23,23 @@ export class TranslationService {
         badge: 'Експертний погляд на майбутнє',
         titleStart: 'Центр економіко-правової',
         titleEnd: 'аналітики',
-        description: 'Незалежний аналітичний центр (think tank). Сприяємо стійкій відбудові, національній безпеці та сталому розвитку України через якісну експертизу.',
-        btnContact: "Зв'язатись з нами",
-        btnMore: 'Ознайомитися з проєктами',
+        description: 'Незалежний аналітичний центр. Сприяємо стійкій відбудові, національній безпеці та сталому розвитку України через якісну експертизу.',
+        btnContact: "Зв'язатися з нами",
+        btnMore: 'Дізнатися більше',
+        cardTitle: 'Економічна та правова експертиза',
+        cardDesc: 'Поєднання професійної аналітики з культурною відповідальністю для сталого розвитку.',
+        cardFooter: 'Залучених експертів',
+        lastProject: {
+          label: 'Останній проєкт',
+          title: 'Ревіталізація Музею лісу',
+          desc: 'Комплексна стратегія збереження культурної спадщини та цифровізації архівних фондів.',
+          link: 'Дізнатися більше'
+        },
+        scroll: 'Гортайте'
       },
       about: {
         title: 'Хто ми є',
-        description: 'ЦЕПА — це незалежний think tank, що об’єднує провідних експертів у сферах права, економіки та безпеки для розробки та впровадження ефективних рішень щодо відновлення та розвитку України.',
+        description: '',
         cards: {
           innovation: {
             title: 'Інновації',
@@ -43,28 +53,42 @@ export class TranslationService {
             title: 'Спільнота',
             desc: 'Об’єднання зусиль експертів, громадськості та бізнесу задля спільної мети.'
           },
-          tagline: 'Об\'єднуємо експертизу заради змін'
+          tagline: 'Об\'єднуємо експертизу заради змін',
+          quote: 'ЦЕПА — це сучасний аналітичний центр, який',
+          quoteThinks: 'мислить',
+          quoteFeels: 'відчуває',
+          donorTitle: 'Донорські проєкти',
+          donorDesc: 'Реалізація високоякісних досліджень та інфраструктурних ініціатив за підтримки міжнародних партнерів. Ми гарантуємо прозорість та верховенство права.',
+          donorItems: ['Економічні звіти', 'Правовий аналіз', 'Стандарти ESG'],
+          probonoTitle: 'Pro Bono',
+          probonoDesc: 'Ми інвестуємо свій час та ресурси у порятунок занедбаних культурних об\'єктів. Наш флагман — ревіталізація Музею лісу.',
+          probonoItems: ['Ревіталізація музею', 'Цифровізація культури', 'Волонтерські табори']
         }
       },
       services: {
-        title: 'Наші напрямки діяльності',
+        title: 'Напрями діяльності',
         subtitle: 'Комплексні рішення для державного сектору та бізнесу',
         items: [
-          { title: 'Аналітика та Дослідження', desc: 'Глибокий аналіз законодавства, економічних процесів та оцінка ризиків.' },
+          { title: 'Аналітика та дослідження', desc: 'Глибокий аналіз законодавства, економічних процесів та оцінка ризиків.' },
           { title: 'Адвокація', desc: 'Просування системних змін на законодавчому та регуляторному рівнях.' },
-          { title: 'Освіта та Розвиток', desc: 'Професійні тренінги, семінари та програми підвищення кваліфікації.' },
-          { title: 'ESG Консалтинг', desc: 'Інтеграція екологічних, соціальних та управлінських стандартів у стратегії розвитку.' }
+          { title: 'Освіта та розвиток', desc: 'Професійні тренінги, семінари та програми підвищення кваліфікації.' },
+          { title: 'ESG-консалтинг', desc: 'Інтеграція екологічних, соціальних та управлінських стандартів у стратегії розвитку.' }
         ]
       },
       projects: {
         title: 'Наші проєкти',
+        label: 'Наша робота',
         donors: 'Донорські проєкти',
         probono: 'Ініціативи Pro Bono',
         empty: 'Наразі активні проєкти відсутні. Слідкуйте за оновленнями.',
-        details: 'Детальніше про проєкт'
+        details: 'Детальніше про проєкт',
+        readCaseStudy: 'Читати кейс-стаді'
       },
       publications: {
-        title: 'Публікації та Аналітика',
+        title: 'Публікації та аналітика',
+        label: 'Бібліотека',
+        downloadPdf: 'Завантажити PDF',
+        readArticle: 'Читати статтю',
         categories: {
           analytics: 'Аналітичні звіти',
           news: 'Новини',
@@ -79,7 +103,8 @@ export class TranslationService {
           { name: 'Олександр Іваненко', role: 'Директор, к.ю.н.', desc: 'Експерт з конституційного та адміністративного права.' },
           { name: 'Марія Петренко', role: 'Головний економіст, Ph.D.', desc: 'Спеціаліст з макроекономічного аналізу та фіскальної політики.' },
           { name: 'Андрій Сидоренко', role: 'Старший юрист', desc: 'Фахівець з міжнародного права та захисту прав людини.' }
-        ]
+        ],
+        empty: 'Команда формується. Данні успішно завантажено, але зараз список порожній.'
       },
       contact: {
         title: "Контакти",
@@ -103,6 +128,8 @@ export class TranslationService {
         rights: '© 2026 Центр економіко-правової аналітики. Всі права захищено.',
         privacy: 'Політика конфіденційності',
         terms: 'Умови використання',
+        city: 'Львів, Україна',
+        staffLogin: 'Вхід для персоналу',
         navTitle: 'Навігація',
         actionTitle: 'Співпраця',
         actionDesc: 'Потрібна експертна консультація?',
@@ -131,6 +158,16 @@ export class TranslationService {
         description: 'An independent think tank. We contribute to Ukraine\'s resilient recovery, national security, and sustainable development through high-quality expertise.',
         btnContact: 'Contact Us',
         btnMore: 'Explore Our Projects',
+        cardTitle: 'Economic & Legal Expertise',
+        cardDesc: 'Bridging professional analytics with cultural responsibility to drive sustainable development.',
+        cardFooter: 'Experts Involved',
+        lastProject: {
+          label: 'Latest Project',
+          title: 'Forest Museum Revitalization',
+          desc: 'A comprehensive strategy for preserving cultural heritage and digitizing archival funds.',
+          link: 'Learn More'
+        },
+        scroll: 'Scroll'
       },
       about: {
         title: 'Who We Are',
@@ -148,11 +185,20 @@ export class TranslationService {
             title: 'Community',
             desc: 'Uniting the efforts of experts, civil society, and business for a common goal.'
           },
-          tagline: 'Uniting Expertise for Change'
+          tagline: 'Uniting Expertise for Change',
+          quote: 'CELA is a modern analytical center that',
+          quoteThinks: 'thinks',
+          quoteFeels: 'feels',
+          donorTitle: 'Donor Projects',
+          donorDesc: 'Implementing high-quality research and infrastructure initiatives funded by international partners. We ensure transparency and rule of law.',
+          donorItems: ['Economic Reports', 'Legal Analysis', 'ESG Standards'],
+          probonoTitle: 'Pro-Bono',
+          probonoDesc: 'Investing our time and resources to save neglected cultural sites. Our flagship is the Wood Museum revitalization.',
+          probonoItems: ['Museum Revitalization', 'Cultural Digitization', 'Volunteer Camps']
         }
       },
       services: {
-        title: 'Our Areas of Activity',
+        title: 'Our Focus Areas',
         subtitle: 'Comprehensive solutions for the public sector and business',
         items: [
           { title: 'Analytics & Research', desc: 'In-depth analysis of legislation, economic processes, and risk assessment.' },
@@ -163,13 +209,18 @@ export class TranslationService {
       },
       projects: {
         title: 'Our Projects',
+        label: 'Our Work',
         donors: 'Donor Projects',
         probono: 'Pro Bono Initiatives',
         empty: 'There are currently no active projects. Stay tuned for updates.',
-        details: 'Project Details'
+        details: 'Project Details',
+        readCaseStudy: 'Read Case Study'
       },
       publications: {
         title: 'Publications & Analytics',
+        label: 'Library',
+        downloadPdf: 'Download PDF',
+        readArticle: 'Read Article',
         categories: {
           analytics: 'Analytical Reports',
           news: 'News',
@@ -184,7 +235,8 @@ export class TranslationService {
           { name: 'Oleksandr Ivanenko', role: 'Director, Ph.D. in Law', desc: 'Expert in Constitutional and Administrative Law.' },
           { name: 'Mariia Petrenko', role: 'Chief Economist, Ph.D.', desc: 'Specialist in Macroeconomic Analysis and Fiscal Policy.' },
           { name: 'Andrii Sydorenko', role: 'Senior Lawyer', desc: 'Specialist in International Law and Human Rights Protection.' }
-        ]
+        ],
+        empty: 'The team is being formed. Data loaded successfully, but the list is currently empty.'
       },
       contact: {
         title: 'Contact Us',
@@ -208,12 +260,14 @@ export class TranslationService {
         rights: '© 2026 Center for Economic and Legal Analytics. All rights reserved.',
         privacy: 'Privacy Policy',
         terms: 'Terms of Use',
+        city: 'Lviv, Ukraine',
+        staffLogin: 'Staff Login',
         navTitle: 'Navigation',
         actionTitle: 'Cooperation',
         actionDesc: 'Need expert consultation?',
         actionBtn: 'Write to Us'
       },
-       notFound: {
+      notFound: {
         title: 'Page Not Found',
         description: 'It might have been removed or relocated.',
         btn: 'Return Home'
