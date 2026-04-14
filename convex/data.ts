@@ -58,3 +58,54 @@ export const generateUploadUrl = mutation({
     return await ctx.storage.generateUploadUrl();
   },
 });
+
+export const getFileUrl = query({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});
+
+export const addNews = mutation({
+  args: {
+    title: v.optional(v.string()),
+    desc: v.optional(v.string()),
+    date: v.optional(v.string()),
+    image: v.optional(v.string()),
+    createdAt: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    return await ctx.db.insert("news", args);
+  },
+});
+
+export const addPublication = mutation({
+  args: {
+    title: v.optional(v.string()),
+    link: v.optional(v.string()),
+    createdAt: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    return await ctx.db.insert("publications", args);
+  },
+});
+
+// This override allows category and desc for publications
+export const addPublicationEx = mutation({
+  args: {
+    title: v.optional(v.string()),
+    category: v.optional(v.string()),
+    desc: v.optional(v.string()),
+    link: v.optional(v.string()),
+    createdAt: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+    return await ctx.db.insert("publications", args);
+  },
+});

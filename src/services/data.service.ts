@@ -149,6 +149,19 @@ export class DataService {
     await this.convex.mutation('data:deleteTeamMember' as any, { id });
   }
 
+  async addNews(data: any): Promise<any> {
+    data.createdAt = new Date().toISOString();
+    if (!data.date) data.date = data.createdAt;
+    const id = await this.convex.mutation('data:addNews' as any, data);
+    return { $id: id, ...data };
+  }
+
+  async addPublication(data: any): Promise<any> {
+    data.createdAt = new Date().toISOString();
+    const id = await this.convex.mutation('data:addPublicationEx' as any, data);
+    return { $id: id, ...data };
+  }
+
   // ========================
   //     HELPERS
   // ========================

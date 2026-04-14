@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common';
           </div>
         }
 
+        <!-- TODO: REPLACE WITH ACTUAL DATA (photos, names, social links) via Admin Panel -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8 justify-items-center">
           @for (member of members(); track member.$id) {
             <div class="group w-full max-w-sm rounded-2xl p-6 hover:-translate-y-2 hover:shadow-lg transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10">
@@ -41,6 +42,7 @@ import { CommonModule } from '@angular/common';
                 <h3 class="font-serif font-bold text-2xl text-white mb-2">{{ member.name }}</h3>
                 <p class="font-sans text-sm font-bold uppercase tracking-wider text-stone-400">{{ member.role }}</p>
                 @if (member.linkedin) {
+                  <!-- TODO: REPLACE WITH ACTUAL DATA (social media links) -->
                   <a [href]="member.linkedin" target="_blank" class="inline-block mt-3 text-stone-500 hover:text-white transition-colors">
                     <span class="material-icons-round text-xl">link</span>
                   </a>

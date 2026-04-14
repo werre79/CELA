@@ -79,6 +79,7 @@ import { DataService } from '../services/data.service';
           </p>
 
           <div class="hero-ctas flex flex-col sm:flex-row gap-3 flex-shrink-0">
+            <!-- TODO: REPLACE WITH ACTUAL DATA (Google Form link or Contact link) -->
             <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
                target="_blank" rel="noopener noreferrer"
                id="hero-cta-contact"
@@ -133,7 +134,7 @@ import { DataService } from '../services/data.service';
              class="hidden md:inline-flex items-center gap-3 group">
             <div class="text-right">
               <span class="block text-[9px] text-stone-600 uppercase tracking-[0.18em] mb-0.5">
-                {{ ts.t().hero.lastProject?.label || 'Останній проєкт' }}
+                {{ ts.t().hero.lastProject.label || 'Останній проєкт' }}
               </span>
               <span class="block text-xs text-stone-400 font-serif italic group-hover:text-terra-400 transition-colors duration-300">
                 {{ latestProject().title }}

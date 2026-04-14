@@ -26,6 +26,8 @@ export default defineSchema({
   
   publications: defineTable({
     title: v.optional(v.string()),
+    category: v.optional(v.string()),
+    desc: v.optional(v.string()),
     link: v.optional(v.string()),
     createdAt: v.string(),
   }).index("by_createdAt", ["createdAt"]),

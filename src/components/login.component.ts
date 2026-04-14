@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
@@ -27,13 +27,16 @@ import { Router } from '@angular/router';
               class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-brand-cream focus:border-brand-amber focus:outline-none">
           </div>
 
-          <button type="submit" [disabled]="isLoading"
+          <button type="submit" [disabled]="isLoading || successMsg !== ''"
             class="w-full py-4 bg-brand-amber text-white font-bold rounded-xl shadow-lg hover:bg-[#b56028] transition-all disabled:opacity-50">
             {{ isLoading ? 'Вхід...' : 'Увійти' }}
           </button>
 
           @if (errorMsg) {
             <p class="text-red-400 text-center text-sm bg-red-400/10 p-2 rounded-lg border border-red-400/20">{{ errorMsg }}</p>
+          }
+          @if (successMsg) {
+            <p class="text-green-400 text-center text-sm bg-green-400/10 p-2 rounded-lg border border-green-400/20">{{ successMsg }}</p>
           }
         </form>
       </div>
@@ -43,26 +46,41 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   private data = inject(DataService);
   router = inject(Router);
+  cdr = inject(ChangeDetectorRef);
 
   email = '';
   password = '';
   isLoading = false;
   errorMsg = '';
+  successMsg = '';
 
   async onLogin() {
     if (!this.email || !this.password) return;
 
     this.isLoading = true;
     this.errorMsg = '';
+    this.successMsg = '';
 
     try {
       await this.data.login(this.email, this.password);
-      this.router.navigate(['/admin/add']);
+      this.successMsg = 'Успішний вхід! Перенаправлення...';
+
+      // small delay to show the success message
+      setTimeout(() => {
+        this.router.navigate(['/admin/add']);
+      }, 1000);
+
     } catch (error: any) {
       console.error('Login error:', error);
-      this.errorMsg = 'Invalid credentials. Try again.';
+      // check if it's a network/server error or bad credentials
+      if (error?.message && error.message.toLowerCase().includes('network')) {
+        this.errorMsg = 'Помилка сервера. Спробуйте пізніше.';
+      } else {
+        this.errorMsg = 'Невірний логін або пароль.';
+      }
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 }
