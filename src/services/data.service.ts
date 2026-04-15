@@ -1,62 +1,54 @@
 import { Injectable } from '@angular/core';
-import { ConvexHttpClient } from 'convex/browser';
+import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
 import { environment } from '../environments/environment';
-
-const TOKEN_KEY = 'cela_auth_token';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-  private convex = new ConvexHttpClient(environment.convex.url);
+  private client = new Client();
+  private account: Account;
+  private databases: Databases;
+  private storage: Storage;
 
   constructor() {
-    // Restore session token on service init (page refresh)
-    const stored = localStorage.getItem(TOKEN_KEY);
-    if (stored) {
-      this.convex.setAuth(stored);
-    }
+    this.client
+      .setEndpoint(environment.appwrite.endpoint)
+      .setProject(environment.appwrite.projectId);
+
+    this.account = new Account(this.client);
+    this.databases = new Databases(this.client);
+    this.storage = new Storage(this.client);
   }
 
   // ========================
   //     AUTH
   // ========================
 
-  /**
-   * Sign in with email and password via @convex-dev/auth.
-   * The HTTP endpoint lives at <convexSiteUrl>/api/auth/signin
-   * and returns a JWT token that we store in localStorage.
-   */
   async login(email: string, password: string): Promise<void> {
     try {
-      const res: any = await this.convex.action("auth:signIn" as any, {
-        provider: "password",
-        params: { email, password, flow: "signIn" },
-      });
-      if (res.tokens?.token) {
-        localStorage.setItem(TOKEN_KEY, res.tokens.token);
-        this.convex.setAuth(res.tokens.token);
-      }
+      await this.account.createEmailPasswordSession(email, password);
     } catch (e: any) {
+      console.error(e);
       throw new Error("Invalid credentials. Try again.");
     }
   }
 
   async logout(): Promise<void> {
     try {
-       await this.convex.action("auth:signOut" as any);
-    } catch {}
-    localStorage.removeItem(TOKEN_KEY);
-    this.convex.clearAuth();
+       await this.account.deleteSession('current');
+    } catch (e) {
+      console.error('Logout error', e);
+    }
   }
 
-  /**
-   * Returns a stub user if token exists. A real implementation would hit a user query.
-   */
   async getCurrentUser(): Promise<{ email: string } | null> {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) return null;
-    return { email: 'admin' };
+    try {
+      const user = await this.account.get();
+      return { email: user.email };
+    } catch {
+      return null;
+    }
   }
 
   // ========================
@@ -65,17 +57,25 @@ export class DataService {
 
   async getProjects(): Promise<any[]> {
     try {
-      const docs = await this.convex.query('projects:get' as any);
-      return docs.map((doc: any) => ({ $id: doc._id, ...doc }));
-    } catch {
+      const res = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.projects,
+        [Query.orderDesc('createdAt')]
+      );
+      return res.documents;
+    } catch (e) {
+      console.error(e);
       return [];
     }
   }
 
   async getProjectById(id: string): Promise<any | null> {
     try {
-      const doc = await this.convex.query('projects:getById' as any, { id });
-      return doc ? { $id: doc._id, ...doc } : null;
+      return await this.databases.getDocument(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.projects,
+        id
+      );
     } catch {
       return null;
     }
@@ -83,8 +83,12 @@ export class DataService {
 
   async getProjectBySlug(slug: string): Promise<any | null> {
     try {
-      const doc = await this.convex.query('projects:getBySlug' as any, { slug });
-      return doc ? { $id: doc._id, ...doc } : null;
+      const res = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.projects,
+        [Query.equal('slug', slug), Query.limit(1)]
+      );
+      return res.documents.length > 0 ? res.documents[0] : null;
     } catch (error) {
       console.error('getProjectBySlug failed:', error);
       return null;
@@ -93,8 +97,12 @@ export class DataService {
 
   async getNews(): Promise<any[]> {
     try {
-      const docs = await this.convex.query('data:getNews' as any);
-      return docs.map((doc: any) => ({ $id: doc._id, ...doc }));
+      const res = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.news,
+        [Query.orderDesc('date')]
+      );
+      return res.documents;
     } catch {
       return [];
     }
@@ -102,8 +110,11 @@ export class DataService {
 
   async getNewsById(id: string): Promise<any | null> {
     try {
-      const doc = await this.convex.query('data:getNewsById' as any, { id });
-      return doc ? { $id: doc._id, ...doc } : null;
+      return await this.databases.getDocument(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.news,
+        id
+      );
     } catch {
       return null;
     }
@@ -111,8 +122,12 @@ export class DataService {
 
   async getPublications(): Promise<any[]> {
     try {
-      const docs = await this.convex.query('data:getPublications' as any);
-      return docs.map((doc: any) => ({ $id: doc._id, ...doc }));
+      const res = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.publications,
+        [Query.orderDesc('createdAt')]
+      );
+      return res.documents;
     } catch {
       return [];
     }
@@ -120,8 +135,11 @@ export class DataService {
 
   async getPublicationById(id: string): Promise<any | null> {
     try {
-      const doc = await this.convex.query('data:getPublicationById' as any, { id });
-      return doc ? { $id: doc._id, ...doc } : null;
+      return await this.databases.getDocument(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.publications,
+        id
+      );
     } catch {
       return null;
     }
@@ -129,8 +147,12 @@ export class DataService {
 
   async getTeam(): Promise<any[]> {
     try {
-      const docs = await this.convex.query('data:getTeam' as any);
-      return docs.map((doc: any) => ({ $id: doc._id, ...doc }));
+      const res = await this.databases.listDocuments(
+        environment.appwrite.databaseId,
+        environment.appwrite.collections.team,
+        [Query.orderDesc('createdAt')]
+      );
+      return res.documents;
     } catch {
       return [];
     }
@@ -141,43 +163,66 @@ export class DataService {
   // ========================
 
   async uploadFile(file: File): Promise<string> {
-    const postUrl = await this.convex.mutation('data:generateUploadUrl' as any);
-    const result = await fetch(postUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': file.type },
-      body: file,
-    });
-    const { storageId } = await result.json();
-    return await this.convex.query('data:getFileUrl' as any, { storageId });
+    const res = await this.storage.createFile(
+      environment.appwrite.bucketId,
+      ID.unique(),
+      file
+    );
+    // Construct the file view URL
+    const fileUrl = this.storage.getFileView(
+      environment.appwrite.bucketId,
+      res.$id
+    );
+    return fileUrl.href;
   }
 
   async createProject(data: any): Promise<any> {
     data.createdAt = new Date().toISOString();
-    const id = await this.convex.mutation('projects:create' as any, data);
-    return { $id: id, ...data };
+    return await this.databases.createDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.projects,
+      ID.unique(),
+      data
+    );
   }
 
   async addTeamMember(data: any): Promise<any> {
     data.createdAt = new Date().toISOString();
-    const id = await this.convex.mutation('data:addTeamMember' as any, data);
-    return { $id: id, ...data };
+    return await this.databases.createDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.team,
+      ID.unique(),
+      data
+    );
   }
 
   async deleteTeamMember(id: string): Promise<void> {
-    await this.convex.mutation('data:deleteTeamMember' as any, { id });
+    await this.databases.deleteDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.team,
+      id
+    );
   }
 
   async addNews(data: any): Promise<any> {
     data.createdAt = new Date().toISOString();
     if (!data.date) data.date = data.createdAt;
-    const id = await this.convex.mutation('data:addNews' as any, data);
-    return { $id: id, ...data };
+    return await this.databases.createDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.news,
+      ID.unique(),
+      data
+    );
   }
 
   async addPublication(data: any): Promise<any> {
     data.createdAt = new Date().toISOString();
-    const id = await this.convex.mutation('data:addPublicationEx' as any, data);
-    return { $id: id, ...data };
+    return await this.databases.createDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.publications,
+      ID.unique(),
+      data
+    );
   }
 
   // ========================
