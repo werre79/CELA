@@ -199,9 +199,7 @@ export class AdminEditProjectComponent implements OnInit {
 
   private runLegacyEditorCommand(command: string, value: string | undefined = undefined) {
     // Isolate deprecated API usage so it can be replaced in one place later.
-    if (typeof document.execCommand === 'function') {
-      document.execCommand(command, false, value);
-    }
+    document.execCommand(command, false, value);
   }
 
   generateSlug() {

@@ -82,10 +82,7 @@ export class LoginComponent implements OnInit {
 
       const errMsg = error?.message?.toLowerCase() || '';
 
-      const isSessionAlreadyActive =
-        error?.type === 'user_session_already_exists' || error?.code === 409;
-
-      if (isSessionAlreadyActive) {
+      if (error?.type === 'user_session_already_exists') {
           this.router.navigate(['/admin/add']);
       } else if (errMsg.includes('network') || errMsg.includes('fetch failed') || errMsg.includes('failed to fetch')) {
         this.errorMsg = 'Немає зв\'язку із сервером (Network Error). Перевірте підключення до Інтернету або налаштування Appwrite.';
