@@ -48,6 +48,10 @@ async function setupAppwrite() {
         // 3. Create Collections
         console.log('\n--- Creating Collections ---');
 
+        console.log('\n⚠️ SECURITY NOTICE: We are using `Role.users()` for write access.');
+        console.log('⚠️ Ensure that PUBLIC REGISTRATION IS DISABLED in your Appwrite Console (Auth Settings).');
+        console.log('⚠️ If public registration is enabled, any random internet user can register and modify your data!\n');
+
         // PROJECTS
         const projectsCol = await databases.createCollection(db.$id, sdk.ID.unique(), 'Projects', [
             sdk.Permission.read(sdk.Role.any()),
