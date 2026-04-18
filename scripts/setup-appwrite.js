@@ -37,7 +37,12 @@ async function setupAppwrite() {
         const bucket = await storage.createBucket(
             bucketId,
             'Cela Storage',
-            [sdk.Permission.read(sdk.Role.any())], // Everyone can view
+            [
+                sdk.Permission.read(sdk.Role.any()),
+                sdk.Permission.create(sdk.Role.users()),
+                sdk.Permission.update(sdk.Role.users()),
+                sdk.Permission.delete(sdk.Role.users())
+            ], // Everyone can view, users can modify
             false, // no file security
             true, // enable antimalware
             undefined, // max file size
