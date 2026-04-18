@@ -218,20 +218,27 @@ export class ProjectDetailsComponent implements OnInit {
 
     if (id) {
       try {
-        try {
-          const data = await this.data.getProjectById(id) as any;
-          this.setProject(data);
+        // Appwrite IDs are usually 20 chars long, slugs are usually not exactly 20 chars and contain hyphens.
+        // Doing a length/pattern check prevents a useless 400 bad request in the console.
+        let data = null;
+        if (id.length === 20 && !id.includes('-')) {
+          try {
+             data = await this.data.getProjectById(id) as any;
+          } catch (e) {
+             // Fallback to slug if ID fails
+             data = await this.data.getProjectBySlug(id);
+          }
+        } else {
+           data = await this.data.getProjectBySlug(id);
+        }
 
-          if (data && data['slug'] && data['slug'] !== id) {
+        if (data) {
+          this.setProject(data);
+          if (data['slug'] && data['slug'] !== id) {
             this.location.replaceState(`/project/${data['slug']}`);
           }
-        } catch (e) {
-          const dataBySlug = await this.data.getProjectBySlug(id);
-          if (dataBySlug) {
-            this.setProject(dataBySlug);
-          } else {
-            throw new Error('Project not found by slug');
-          }
+        } else {
+          console.error('Project not found');
         }
         window.scrollTo(0, 0);
       } catch (error) {

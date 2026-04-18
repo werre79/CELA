@@ -89,22 +89,36 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
             </div>
 
             <div>
-              <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Додаткові фото (Галерея - додасться до існуючих)</label>
+              <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Галерея фото</label>
               <input type="file" multiple (change)="onGallerySelected($event)" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-stone-700 file:text-white hover:file:bg-stone-600">
 
               <div class="mt-4 flex flex-wrap gap-4">
-                 @for (img of previews().gallery; track img) {
-                   <div class="w-24 h-24 rounded-lg overflow-hidden border border-white/10 relative">
-                      <img [src]="img" class="w-full h-full object-cover">
-                      <div class="absolute inset-0 bg-black/50 flex items-center justify-center font-bold text-xs">НОВЕ</div>
+                 @for (item of galleryItems(); track item.id; let i = $index) {
+                   <div class="w-32 h-32 rounded-lg overflow-hidden border border-white/10 relative group">
+                      <img [src]="item.preview" class="w-full h-full object-cover">
+
+                      @if (item.isNew) {
+                         <div class="absolute top-1 left-1 bg-accent text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">НОВЕ</div>
+                      }
+
+                      <!-- Overlay controls -->
+                      <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        <div class="flex gap-2">
+                          <button type="button" (click)="moveGalleryItem(i, -1)" [disabled]="i === 0" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed">
+                             <span class="material-icons-round text-sm">arrow_back</span>
+                          </button>
+                          <button type="button" (click)="moveGalleryItem(i, 1)" [disabled]="i === galleryItems().length - 1" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed">
+                             <span class="material-icons-round text-sm">arrow_forward</span>
+                          </button>
+                        </div>
+                        <button type="button" (click)="removeGalleryItem(i)" class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400 flex items-center justify-center">
+                           <span class="material-icons-round text-sm">delete</span>
+                        </button>
+                      </div>
                    </div>
                  }
-                 @if (!previews().gallery.length && project()?.gallery) {
-                     @for (img of project()?.gallery; track img) {
-                        <div class="w-24 h-24 rounded-lg overflow-hidden border border-white/10 relative">
-                            <img [src]="img" class="w-full h-full object-cover">
-                        </div>
-                     }
+                 @if (galleryItems().length === 0) {
+                    <div class="text-stone-500 text-sm">Немає фото в галереї</div>
                  }
               </div>
             </div>
@@ -140,9 +154,13 @@ export class AdminEditProjectComponent implements OnInit {
   };
 
   selectedFile: File | null = null;
-  galleryFiles: File[] = [];
+
+  // Unified state for gallery items
+  // An item is either an existing URL (isNew: false) or a newly selected File (isNew: true)
+  galleryItems = signal<{id: string, preview: string, isNew: boolean, url?: string, file?: File}[]>([]);
+
   isSubmitting = false;
-  previews = signal<{ main: string | null, gallery: string[] }>({ main: null, gallery: [] });
+  previews = signal<{ main: string | null }>({ main: null });
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -152,7 +170,17 @@ export class AdminEditProjectComponent implements OnInit {
     }
 
     try {
-      const proj = await this.data.getProjectById(id) || await this.data.getProjectBySlug(id);
+      let proj = null;
+      if (id.length === 20 && !id.includes('-')) {
+        try {
+          proj = await this.data.getProjectById(id);
+        } catch (e) {
+          proj = await this.data.getProjectBySlug(id);
+        }
+      } else {
+        proj = await this.data.getProjectBySlug(id);
+      }
+
       if (proj) {
         this.project.set(proj);
         this.formData = {
@@ -162,6 +190,17 @@ export class AdminEditProjectComponent implements OnInit {
           details: proj.details || '',
           type: proj.type || 'donor'
         };
+
+        // Initialize gallery state with existing items
+        if (proj.gallery && Array.isArray(proj.gallery)) {
+          const items = proj.gallery.map((url: string, index: number) => ({
+             id: `existing-${index}`,
+             preview: url,
+             isNew: false,
+             url: url
+          }));
+          this.galleryItems.set(items);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -198,7 +237,8 @@ export class AdminEditProjectComponent implements OnInit {
   }
 
   private runLegacyEditorCommand(command: string, value: string | undefined = undefined) {
-    // Isolate deprecated API usage so it can be replaced in one place later.
+    // document.execCommand is deprecated but still widely supported for basic contenteditable behavior.
+    // Keep usage centralized here so future migration to a dedicated editor (e.g., Quill/TinyMCE) is straightforward.
     document.execCommand(command, false, value);
   }
 
@@ -221,16 +261,49 @@ export class AdminEditProjectComponent implements OnInit {
   onGallerySelected(event: any) {
     if (event.target.files) {
       const files = Array.from(event.target.files) as File[];
-      this.galleryFiles = files;
-      this.previews.update(p => ({ ...p, gallery: [] }));
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.previews.update(p => ({ ...p, gallery: [...p.gallery, e.target.result] }));
-        };
-        reader.readAsDataURL(file);
+
+      const newItemsPromises = files.map(file => {
+        return new Promise<any>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+             resolve({
+                id: `new-${Date.now()}-${Math.random()}`,
+                preview: e.target.result,
+                isNew: true,
+                file: file
+             });
+          };
+          reader.readAsDataURL(file);
+        });
       });
+
+      Promise.all(newItemsPromises).then(newItems => {
+        this.galleryItems.update(items => [...items, ...newItems]);
+      });
+
+      // Clear input so same files can be selected again if needed
+      event.target.value = '';
     }
+  }
+
+  removeGalleryItem(index: number) {
+    this.galleryItems.update(items => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      return newItems;
+    });
+  }
+
+  moveGalleryItem(index: number, direction: number) {
+    this.galleryItems.update(items => {
+      const newItems = [...items];
+      if (index + direction >= 0 && index + direction < newItems.length) {
+        const temp = newItems[index];
+        newItems[index] = newItems[index + direction];
+        newItems[index + direction] = temp;
+      }
+      return newItems;
+    });
   }
 
   async onSubmit() {
@@ -252,12 +325,22 @@ export class AdminEditProjectComponent implements OnInit {
         updateData.image = await this.data.uploadFile(this.selectedFile);
       }
 
-      if (this.galleryFiles.length > 0) {
-        const newGalleryUrls = await Promise.all(
-          this.galleryFiles.map((file) => this.data.uploadFile(file))
-        );
-        updateData.gallery = [...(this.project()?.gallery || []), ...newGalleryUrls];
-      }
+      // Process gallery items in their current order
+      const currentItems = this.galleryItems();
+
+      // Upload new files, keep existing URLs
+      const uploadPromises = currentItems.map(async (item) => {
+         if (item.isNew && item.file) {
+            return await this.data.uploadFile(item.file);
+         } else if (!item.isNew && item.url) {
+            return item.url;
+         }
+         return null;
+      });
+
+      const resolvedUrls = await Promise.all(uploadPromises);
+      // Filter out any potential nulls
+      updateData.gallery = resolvedUrls.filter(url => url !== null);
 
       await this.data.updateProject(this.project().$id, updateData);
       alert('Проєкт успішно оновлено!');
