@@ -2,17 +2,26 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { TranslationService } from '../services/translation.service';
 import { DataService } from '../services/data.service';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-team',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <section id="team" class="py-24 relative">
       <div class="max-w-7xl mx-auto px-6 relative z-10">
         <div class="text-center mb-20">
           <h2 class="font-serif font-bold text-4xl text-white mb-6">{{ ts.t().team.title }}</h2>
           <p class="font-sans text-lg text-stone-300 max-w-2xl mx-auto font-light">{{ ts.t().team.subtitle }}</p>
+
+          @if (currentUser()) {
+            <div class="mt-8">
+              <a routerLink="/admin/team" class="inline-flex items-center gap-2 px-6 py-3 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-xl transition-all shadow-lg hover:-translate-y-1 border border-white/10">
+                <span class="material-icons-round text-sm">edit</span> Редагувати команду
+              </a>
+            </div>
+          }
         </div>
 
         @if (isLoading()) {
@@ -73,9 +82,13 @@ export class TeamComponent implements OnInit {
 
   isLoading = signal(true);
   members = signal<any[]>([]);
+  currentUser = signal<{email: string} | null>(null);
 
   async ngOnInit() {
     try {
+      const user = await this.data.getCurrentUser();
+      this.currentUser.set(user);
+
       const data = await this.data.getTeam();
       this.members.set(data);
     } catch (e) {

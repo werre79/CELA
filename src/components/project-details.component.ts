@@ -54,6 +54,13 @@ import { SecurityContext } from '@angular/core';
                  <h1 class="text-4xl md:text-5xl lg:text-7xl font-serif text-white drop-shadow-2xl leading-tight">
                     {{ project().title }}
                  </h1>
+                 @if (currentUser()) {
+                   <div class="mt-6 flex justify-center w-full">
+                     <a [routerLink]="['/admin/edit-project', project().$id]" class="inline-flex items-center gap-2 px-6 py-2 bg-stone-800 hover:bg-stone-700 text-white font-bold rounded-xl transition-all shadow-lg hover:-translate-y-1">
+                       <span class="material-icons-round text-sm">edit</span> Редагувати
+                     </a>
+                   </div>
+                 }
               </header>
 
               <!-- HERO GALLERY CAROUSEL (Full Width) -->
@@ -174,6 +181,7 @@ export class ProjectDetailsComponent implements OnInit {
   project = signal<any>(null);
   isLoading = signal(true);
   sanitizedDetails: string = '';
+  currentUser = signal<{email: string} | null>(null);
 
   // Gallery Logic
   activeIndex = signal(0);
@@ -203,6 +211,9 @@ export class ProjectDetailsComponent implements OnInit {
   });
 
   async ngOnInit() {
+    const user = await this.data.getCurrentUser();
+    this.currentUser.set(user);
+
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
