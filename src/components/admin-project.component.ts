@@ -112,9 +112,23 @@ import { Router } from '@angular/router';
             <label class="block text-stone-400 text-sm font-bold mb-2 uppercase tracking-wider">Галерея (додаткові фото)</label>
             <input type="file" multiple (change)="onGallerySelected($event)" class="w-full text-stone-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-stone-700 file:text-white hover:file:bg-stone-600">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-               @for (src of previews().gallery; track src) {
+               @for (item of galleryItems(); track item.id; let i = $index) {
                   <div class="rounded-xl overflow-hidden border border-white/10 aspect-square relative group">
-                    <img [src]="src" class="w-full h-full object-cover">
+                    <img [src]="item.preview" class="w-full h-full object-cover">
+                    <!-- Overlay controls -->
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                      <div class="flex gap-2">
+                        <button type="button" (click)="moveGalleryItem(i, -1)" [disabled]="i === 0" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed">
+                           <span class="material-icons-round text-sm">arrow_back</span>
+                        </button>
+                        <button type="button" (click)="moveGalleryItem(i, 1)" [disabled]="i === galleryItems().length - 1" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/30 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed">
+                           <span class="material-icons-round text-sm">arrow_forward</span>
+                        </button>
+                      </div>
+                      <button type="button" (click)="removeGalleryItem(i)" class="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 text-red-400 flex items-center justify-center">
+                         <span class="material-icons-round text-sm">delete</span>
+                      </button>
+                    </div>
                   </div>
                }
             </div>
@@ -235,10 +249,12 @@ export class AdminProjectComponent implements OnInit {
 
   selectedFile: File | null = null;
   newsFile: File | null = null;
-  galleryFiles: File[] = [];
+
+  // Unified state for gallery items
+  galleryItems = signal<{id: string, preview: string, file: File}[]>([]);
 
   isSubmitting = false;
-  previews = signal<{ main: string | null, gallery: string[], news: string | null }>({ main: null, gallery: [], news: null });
+  previews = signal<{ main: string | null, news: string | null }>({ main: null, news: null });
 
   async ngOnInit() {
     const user = await this.data.getCurrentUser();
@@ -312,16 +328,48 @@ export class AdminProjectComponent implements OnInit {
   onGallerySelected(event: any) {
     if (event.target.files) {
       const files = Array.from(event.target.files) as File[];
-      this.galleryFiles = files;
-      this.previews.update(p => ({ ...p, gallery: [] }));
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.previews.update(p => ({ ...p, gallery: [...p.gallery, e.target.result] }));
-        };
-        reader.readAsDataURL(file);
+
+      const newItemsPromises = files.map(file => {
+        return new Promise<any>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+             resolve({
+                id: `new-${Date.now()}-${Math.random()}`,
+                preview: e.target.result,
+                file: file
+             });
+          };
+          reader.readAsDataURL(file);
+        });
       });
+
+      Promise.all(newItemsPromises).then(newItems => {
+        this.galleryItems.update(items => [...items, ...newItems]);
+      });
+
+      // Clear input so same files can be selected again if needed
+      event.target.value = '';
     }
+  }
+
+  removeGalleryItem(index: number) {
+    this.galleryItems.update(items => {
+      const newItems = [...items];
+      newItems.splice(index, 1);
+      return newItems;
+    });
+  }
+
+  moveGalleryItem(index: number, direction: number) {
+    this.galleryItems.update(items => {
+      const newItems = [...items];
+      if (index + direction >= 0 && index + direction < newItems.length) {
+        const temp = newItems[index];
+        newItems[index] = newItems[index + direction];
+        newItems[index + direction] = temp;
+      }
+      return newItems;
+    });
   }
 
   async onSubmitProject() {
@@ -342,11 +390,11 @@ export class AdminProjectComponent implements OnInit {
       }
 
       const imageUrl = await this.data.uploadFile(this.selectedFile);
-      const galleryUrls: string[] = [];
-      for (const file of this.galleryFiles) {
-        const uploaded = await this.data.uploadFile(file);
-        galleryUrls.push(uploaded);
-      }
+
+      const currentItems = this.galleryItems();
+      const uploadPromises = currentItems.map(item => this.data.uploadFile(item.file));
+      const galleryUrls = await Promise.all(uploadPromises);
+
       await this.data.createProject({
         title: this.formData.title,
         slug: this.formData.slug,
