@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
@@ -43,7 +43,7 @@ import { Router } from '@angular/router';
     </div>
   `
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private data = inject(DataService);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
@@ -53,6 +53,13 @@ export class LoginComponent {
   isLoading = false;
   errorMsg = '';
   successMsg = '';
+
+  async ngOnInit() {
+    const user = await this.data.getCurrentUser();
+    if (user) {
+      this.router.navigate(['/admin/add']);
+    }
+  }
 
   async onLogin() {
     if (!this.email || !this.password) return;
@@ -75,7 +82,9 @@ export class LoginComponent {
 
       const errMsg = error?.message?.toLowerCase() || '';
 
-      if (errMsg.includes('network') || errMsg.includes('fetch failed') || errMsg.includes('failed to fetch')) {
+      if (error?.type === 'user_session_already_exists') {
+          this.router.navigate(['/admin/add']);
+      } else if (errMsg.includes('network') || errMsg.includes('fetch failed') || errMsg.includes('failed to fetch')) {
         this.errorMsg = 'Немає зв\'язку із сервером (Network Error). Перевірте підключення до Інтернету або налаштування Appwrite.';
       } else if (error?.code === 401 || errMsg.includes('invalid credentials')) {
         this.errorMsg = 'Невірний логін або пароль.';

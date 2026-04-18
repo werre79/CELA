@@ -226,6 +226,42 @@ export class DataService {
     );
   }
 
+  async updateProject(id: string, data: any): Promise<any> {
+    return await this.databases.updateDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.projects,
+      id,
+      data
+    );
+  }
+
+  async updateNews(id: string, data: any): Promise<any> {
+    return await this.databases.updateDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.news,
+      id,
+      data
+    );
+  }
+
+  async updatePublication(id: string, data: any): Promise<any> {
+    return await this.databases.updateDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.publications,
+      id,
+      data
+    );
+  }
+
+  async updateTeamMember(id: string, data: any): Promise<any> {
+    return await this.databases.updateDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.team,
+      id,
+      data
+    );
+  }
+
   // ========================
   //     HELPERS
   // ========================
