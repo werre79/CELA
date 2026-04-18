@@ -113,7 +113,11 @@ export class AdminEditNewsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/news', this.newsItem().$id]);
+    if (this.newsItem() && this.newsItem().$id) {
+       this.router.navigate(['/news', this.newsItem().$id]);
+    } else {
+       this.router.navigate(['/publications']);
+    }
   }
 
   onFileSelected(event: any) {

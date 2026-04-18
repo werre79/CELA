@@ -179,6 +179,8 @@ export class AdminEditProjectComponent implements OnInit {
   }
 
   execCommand(command: string, value: string | undefined = undefined) {
+    // Note: document.execCommand is deprecated but still widely supported for basic contenteditable needs.
+    // In the future, consider replacing this with a dedicated rich-text editor library (e.g. Quill, TinyMCE).
     document.execCommand(command, false, value);
   }
 
@@ -199,21 +201,7 @@ export class AdminEditProjectComponent implements OnInit {
 
   generateSlug() {
     if (!this.formData.slug && this.formData.title) {
-        const ukrMap: any = {
-          'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e',
-          'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y',
-          'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-          'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-          'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya', ' ': '-'
-        };
-
-        const titleLower = this.formData.title.toLowerCase();
-
-        this.formData.slug = titleLower.split('').map(char => {
-          if (ukrMap[char] !== undefined) return ukrMap[char];
-          if (/[a-z0-9-]/.test(char)) return char;
-          return '';
-        }).join('').replace(/-+/g, '-');
+      this.formData.slug = DataService.generateSlugFromTitle(this.formData.title);
     }
   }
 

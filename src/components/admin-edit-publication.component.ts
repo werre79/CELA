@@ -108,13 +108,11 @@ export class AdminEditPublicationComponent implements OnInit {
   }
 
   goBack() {
-    const publication = this.pubItem();
-    if (!publication?.$id) {
+    if (this.pubItem() && this.pubItem().$id) {
+      this.router.navigate(['/publication', this.pubItem().$id]);
+    } else {
       this.router.navigate(['/publications']);
-      return;
     }
-
-    this.router.navigate(['/publication', publication.$id]);
   }
 
   async onSubmit() {
