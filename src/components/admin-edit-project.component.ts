@@ -237,7 +237,8 @@ export class AdminEditProjectComponent implements OnInit {
   }
 
   private runLegacyEditorCommand(command: string, value: string | undefined = undefined) {
-    // Isolate deprecated API usage so it can be replaced in one place later.
+    // document.execCommand is deprecated but still widely supported for basic contenteditable behavior.
+    // Keep usage centralized here so future migration to a dedicated editor (e.g., Quill/TinyMCE) is straightforward.
     document.execCommand(command, false, value);
   }
 
