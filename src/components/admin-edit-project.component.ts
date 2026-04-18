@@ -219,9 +219,7 @@ export class AdminEditProjectComponent implements OnInit {
   }
 
   execCommand(command: string, value: string | undefined = undefined) {
-    // Note: document.execCommand is deprecated but still widely supported for basic contenteditable needs.
-    // In the future, consider replacing this with a dedicated rich-text editor library (e.g. Quill, TinyMCE).
-    document.execCommand(command, false, value);
+    this.runLegacyEditorCommand(command, value);
   }
 
   promptLink() {
@@ -236,7 +234,13 @@ export class AdminEditProjectComponent implements OnInit {
   onPaste(event: ClipboardEvent) {
     event.preventDefault();
     const text = event.clipboardData?.getData('text/plain') || '';
-    document.execCommand('insertText', false, text);
+    this.runLegacyEditorCommand('insertText', text);
+  }
+
+  private runLegacyEditorCommand(command: string, value: string | undefined = undefined) {
+    // document.execCommand is deprecated but still widely supported for basic contenteditable behavior.
+    // Keep usage centralized here so future migration to a dedicated editor (e.g., Quill/TinyMCE) is straightforward.
+    document.execCommand(command, false, value);
   }
 
   generateSlug() {

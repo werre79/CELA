@@ -138,7 +138,6 @@ export class AdminTeamComponent implements OnInit {
       const user = await this.data.getCurrentUser();
       if (!user) {
         this.router.navigate(['/login']);
-        this.isLoadingUser = false;
         return;
       }
       await this.loadTeam();
