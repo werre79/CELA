@@ -72,11 +72,20 @@ export class LoginComponent {
 
     } catch (error: any) {
       console.error('Login error:', error);
-      // check if it's a network/server error or bad credentials
-      if (error?.message && error.message.toLowerCase().includes('network')) {
-        this.errorMsg = 'Помилка сервера. Спробуйте пізніше.';
-      } else {
+
+      const errMsg = error?.message?.toLowerCase() || '';
+
+      if (errMsg.includes('network') || errMsg.includes('fetch failed') || errMsg.includes('failed to fetch')) {
+        this.errorMsg = 'Немає зв\'язку із сервером (Network Error). Перевірте підключення до Інтернету або налаштування Appwrite.';
+      } else if (error?.code === 401 || errMsg.includes('invalid credentials')) {
         this.errorMsg = 'Невірний логін або пароль.';
+      } else if (error?.code === 429 || errMsg.includes('rate limit')) {
+        this.errorMsg = 'Забагато спроб входу. Зачекайте та спробуйте пізніше.';
+      } else if (error?.code === 400 || errMsg.includes('invalid email')) {
+        this.errorMsg = 'Некоректна email адреса або пароль.';
+      } else {
+        // Fallback to show the actual error message from the server if possible
+        this.errorMsg = error?.message ? `Помилка: ${error.message}` : 'Невідома помилка під час входу.';
       }
     } finally {
       this.isLoading = false;

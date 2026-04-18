@@ -29,8 +29,9 @@ export class DataService {
     try {
       await this.account.createEmailPasswordSession(email, password);
     } catch (e: any) {
-      console.error(e);
-      throw new Error("Invalid credentials. Try again.");
+      console.error('Appwrite login error:', e);
+      // Re-throw the actual error so the component can handle it specifically
+      throw e;
     }
   }
 
