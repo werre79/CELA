@@ -262,10 +262,9 @@ export class AdminEditProjectComponent implements OnInit {
       }
 
       if (this.galleryFiles.length > 0) {
-        const newGalleryUrls: string[] = [];
-        for (const file of this.galleryFiles) {
-          newGalleryUrls.push(await this.data.uploadFile(file));
-        }
+        const newGalleryUrls = await Promise.all(
+          this.galleryFiles.map((file) => this.data.uploadFile(file))
+        );
         updateData.gallery = [...(this.project()?.gallery || []), ...newGalleryUrls];
       }
 
