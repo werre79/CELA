@@ -1,15 +1,15 @@
 export const environment = {
   production: false,
   appwrite: {
-    endpoint: "YOUR_APPWRITE_ENDPOINT", // e.g. 'https://cloud.appwrite.io/v1'
-    projectId: "YOUR_PROJECT_ID",
-    databaseId: "YOUR_DATABASE_ID",
+    endpoint: "https://fra.cloud.appwrite.io/v1",
+    projectId: "69df9a2200326ec63d6d",
+    databaseId: "69e32f92002143d724ef",
     collections: {
-      projects: "YOUR_PROJECTS_COLLECTION_ID",
-      news: "YOUR_NEWS_COLLECTION_ID",
-      publications: "YOUR_PUBLICATIONS_COLLECTION_ID",
-      team: "YOUR_TEAM_COLLECTION_ID",
+      projects: "69e32f940018fbac9e90",
+      news: "69e32f9600074e6fc73a",
+      publications: "69e32f970013b5484863",
+      team: "69e32f980019a6ee3c4b",
     },
-    bucketId: "YOUR_BUCKET_ID",
+    bucketId: "69e32f93002813ec0da7",
   }
 };

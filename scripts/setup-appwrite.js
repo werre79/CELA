@@ -4,9 +4,9 @@ const sdk = require('node-appwrite');
 // CONFIGURATION
 // Replace these with your actual Appwrite project details
 // =======================================================
-const endpoint = 'YOUR_APPWRITE_ENDPOINT'; // e.g. 'https://cloud.appwrite.io/v1'
-const projectId = 'YOUR_PROJECT_ID';
-const apiKey = 'YOUR_API_KEY'; // Create an API key in the Appwrite Console with permissions: databases.write, collections.write, attributes.write, indexes.write, storage.write
+const endpoint = 'https://fra.cloud.appwrite.io/v1';
+const projectId = '69df9a2200326ec63d6d';
+const apiKey = process.env.APPWRITE_API_KEY || 'YOUR_API_KEY'; // DO NOT COMMIT ACTUAL API KEYS
 
 // Initialize the Appwrite Client
 const client = new sdk.Client();
