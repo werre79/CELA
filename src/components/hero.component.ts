@@ -159,23 +159,12 @@ export class HeroComponent implements OnInit {
   dots = Array.from({ length: 25 });
 
   get marqueeItems(): string[] {
-    const lang = this.ts.currentLang();
-    if (lang === 'ua') {
-      return [
-        'Економіко-правова аналітика', '·',
-        'Незалежна експертиза', '·',
-        'Стійкість України', '·',
-        'Публікації та дослідження', '·',
-        'Донорські програми', '·',
-        'Pro Bono', '·',
-      ];
-    }
     return [
-      'Economic & Legal Analytics', '·',
-      'Independent Expertise', '·',
-      'Ukraine Resilience', '·',
-      'Publications & Research', '·',
-      'Donor Programs', '·',
+      'Економіко-правова аналітика', '·',
+      'Незалежна експертиза', '·',
+      'Стійкість України', '·',
+      'Публікації та дослідження', '·',
+      'Донорські програми', '·',
       'Pro Bono', '·',
     ];
   }
