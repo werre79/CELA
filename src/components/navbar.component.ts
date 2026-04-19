@@ -50,23 +50,6 @@ import { TranslationService, Language } from '../services/translation.service';
         <div class="hidden md:flex items-center gap-3 flex-shrink-0">
           <div class="h-5 w-px bg-white/20"></div>
 
-          <!-- Language switcher -->
-          <div class="flex gap-1 text-xs font-bold">
-            <button (click)="setLang('ua')"
-                    class="px-2 py-1 rounded transition-colors duration-200"
-                    [class.text-white]="ts.currentLang() === 'ua'"
-                    [class.text-stone-500]="ts.currentLang() !== 'ua'">
-              UA
-            </button>
-            <span class="text-stone-600 self-center">/</span>
-            <button (click)="setLang('en')"
-                    class="px-2 py-1 rounded transition-colors duration-200"
-                    [class.text-white]="ts.currentLang() === 'en'"
-                    [class.text-stone-500]="ts.currentLang() !== 'en'">
-              EN
-            </button>
-          </div>
-
           <!-- CTA -->
           <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
              target="_blank" rel="noopener noreferrer"
@@ -110,26 +93,12 @@ import { TranslationService, Language } from '../services/translation.service';
 
           <div class="h-px bg-white/10"></div>
 
-          <div class="flex items-center justify-between">
-            <div class="flex gap-3 text-sm font-bold">
-              <button (click)="setLang('ua')"
-                      [class.text-white]="ts.currentLang() === 'ua'"
-                      [class.text-stone-500]="ts.currentLang() !== 'ua'">
-                UA
-              </button>
-              <span class="text-stone-600">/</span>
-              <button (click)="setLang('en')"
-                      [class.text-white]="ts.currentLang() === 'en'"
-                      [class.text-stone-500]="ts.currentLang() !== 'en'">
-                EN
-              </button>
-            </div>
-
+          <div class="flex items-center justify-center">
             <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
                target="_blank" rel="noopener noreferrer"
                (click)="closeMobileMenu()"
                class="btn-terra inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-                      text-xs font-bold uppercase tracking-wider">
+                      text-xs font-bold uppercase tracking-wider w-full justify-center">
               {{ ts.t().nav.support }}
             </a>
           </div>
@@ -146,10 +115,6 @@ export class NavbarComponent {
   @HostListener('window:scroll', [])
   onScroll() {
     this.isScrolled = window.scrollY > 60;
-  }
-
-  setLang(lang: Language) {
-    this.ts.setLanguage(lang);
   }
 
   toggleMobileMenu() {
