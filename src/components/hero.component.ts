@@ -119,9 +119,7 @@ import { DataService } from '../services/data.service';
         <!-- Scroll indicator -->
         <div class="flex items-center gap-2.5">
           <div class="flex flex-col gap-[3px]">
-            <div class="w-3 h-px bg-white/20"></div>
             <div class="w-5 h-px bg-terra-600/50"></div>
-            <div class="w-3 h-px bg-white/20"></div>
           </div>
           <span class="text-[9px] text-stone-600 uppercase tracking-[0.2em] font-semibold">
             {{ ts.t().hero.scroll }}
