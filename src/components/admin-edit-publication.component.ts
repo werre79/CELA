@@ -86,6 +86,7 @@ export class AdminEditPublicationComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.router.navigate(['/publications']);
+      this.isLoading.set(false);
       return;
     }
 

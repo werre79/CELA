@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
@@ -117,6 +117,7 @@ import { Router } from '@angular/router';
 export class AdminTeamComponent implements OnInit {
   private data = inject(DataService);
   router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   isLoadingUser = true;
 
@@ -140,10 +141,13 @@ export class AdminTeamComponent implements OnInit {
         return;
       }
       await this.loadTeam();
-    } catch {
+    } catch (e) {
+      console.error('Error in AdminTeamComponent ngOnInit:', e);
       this.router.navigate(['/login']);
     } finally {
+      // Angular change detection might not trigger properly if this isn't executed.
       this.isLoadingUser = false;
+      this.cdr.detectChanges();
     }
   }
 

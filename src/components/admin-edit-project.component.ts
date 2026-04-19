@@ -166,6 +166,7 @@ export class AdminEditProjectComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.router.navigate(['/']);
+      this.isLoading.set(false);
       return;
     }
 
