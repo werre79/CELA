@@ -2,12 +2,13 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
+import { ImageCropperComponent, ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-team',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImageCropperComponent],
   template: `
     <div class="min-h-screen bg-brand-dark pt-32 pb-20 px-4">
       
@@ -59,16 +60,41 @@ import { Router } from '@angular/router';
 
             <div>
               <label class="block text-brand-stone mb-2 text-sm font-bold">Фото</label>
-              <div class="relative w-32 h-32 border-2 border-dashed border-white/10 rounded-full hover:border-brand-amber/50 transition-colors flex flex-col items-center justify-center cursor-pointer bg-black/10 overflow-hidden mx-auto group">
-                <input type="file" (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-20">
-                
-                @if (previewUrl) {
-                  <img [src]="previewUrl" class="absolute inset-0 w-full h-full object-cover z-10">
-                  <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                     <span class="material-icons-round text-white">edit</span>
+              <div class="flex flex-col items-center gap-4">
+                @if (imageChangedEvent) {
+                  <div class="relative w-64 h-64 bg-black/20 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center">
+                    <image-cropper
+                      [imageChangedEvent]="imageChangedEvent"
+                      [maintainAspectRatio]="true"
+                      [aspectRatio]="1 / 1"
+                      [roundCropper]="true"
+                      [transform]="transform"
+                      format="png"
+                      (imageCropped)="imageCropped($event)"
+                      class="max-w-full max-h-full"
+                    ></image-cropper>
                   </div>
+                  <div class="flex items-center gap-2 w-full max-w-[200px]">
+                    <span class="material-icons-round text-brand-stone text-sm">zoom_out</span>
+                    <input type="range" min="1" max="3" step="0.1" [(ngModel)]="scale" (input)="updateTransform()" name="scale" class="flex-1 accent-brand-amber">
+                    <span class="material-icons-round text-brand-stone text-sm">zoom_in</span>
+                  </div>
+                  <button type="button" (click)="cancelCrop()" class="text-sm text-brand-stone hover:text-white transition-colors">
+                    Скасувати вибір
+                  </button>
                 } @else {
-                  <span class="material-icons-round text-2xl text-brand-stone">add_a_photo</span>
+                  <div class="relative w-32 h-32 border-2 border-dashed border-white/10 rounded-full hover:border-brand-amber/50 transition-colors flex flex-col items-center justify-center cursor-pointer bg-black/10 overflow-hidden mx-auto group">
+                    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-20">
+
+                    @if (previewUrl) {
+                      <img [src]="previewUrl" class="absolute inset-0 w-full h-full object-cover z-10">
+                      <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                         <span class="material-icons-round text-white">edit</span>
+                      </div>
+                    } @else {
+                      <span class="material-icons-round text-2xl text-brand-stone">add_a_photo</span>
+                    }
+                  </div>
                 }
               </div>
             </div>
@@ -129,6 +155,13 @@ export class AdminTeamComponent implements OnInit {
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+
+  // Cropper state
+  imageChangedEvent: any = '';
+  croppedImageBlob: Blob | null = null;
+  scale = 1;
+  transform: ImageTransform = {};
+
   isSubmitting = false;
   teamMembers: any[] = [];
   editingMemberId: string | null = null;
@@ -155,16 +188,33 @@ export class AdminTeamComponent implements OnInit {
     this.teamMembers = await this.data.getTeam();
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      this.selectedFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.previewUrl = e.target.result;
-      };
-      reader.readAsDataURL(this.selectedFile);
+  onFileSelected(event: any) {
+    if (event.target.files && event.target.files.length) {
+      this.imageChangedEvent = event;
+      this.scale = 1;
+      this.transform = { scale: 1 };
     }
+  }
+
+  imageCropped(event: ImageCroppedEvent) {
+    if (event.blob) {
+      this.croppedImageBlob = event.blob;
+    }
+  }
+
+  updateTransform() {
+    this.transform = {
+      ...this.transform,
+      scale: this.scale
+    };
+  }
+
+  cancelCrop() {
+    this.imageChangedEvent = '';
+    this.croppedImageBlob = null;
+    this.selectedFile = null;
+    this.scale = 1;
+    this.transform = {};
   }
 
   editMember(member: any) {
@@ -175,7 +225,7 @@ export class AdminTeamComponent implements OnInit {
       linkedin: member.linkedin || ''
     };
     this.previewUrl = member.image || null;
-    this.selectedFile = null;
+    this.cancelCrop();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -183,7 +233,7 @@ export class AdminTeamComponent implements OnInit {
     this.editingMemberId = null;
     this.formData = { name: '', role: '', linkedin: '' };
     this.previewUrl = null;
-    this.selectedFile = null;
+    this.cancelCrop();
   }
 
   async deleteMember(id: string) {
@@ -199,16 +249,18 @@ export class AdminTeamComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.editingMemberId && !this.selectedFile) {
-      alert('Будь ласка, оберіть фото!');
+    if (!this.editingMemberId && !this.croppedImageBlob) {
+      alert('Будь ласка, оберіть і налаштуйте фото!');
       return;
     }
     this.isSubmitting = true;
 
     try {
       let imageUrl = this.previewUrl;
-      if (this.selectedFile) {
-        imageUrl = await this.data.uploadFile(this.selectedFile);
+
+      if (this.croppedImageBlob) {
+        const file = new File([this.croppedImageBlob], `avatar-${Date.now()}.png`, { type: 'image/png' });
+        imageUrl = await this.data.uploadFile(file);
       }
 
       if (this.editingMemberId) {
