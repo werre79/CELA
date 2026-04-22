@@ -63,8 +63,10 @@ import { TranslationService, Language } from '../services/translation.service';
 
         <!-- MOBILE HAMBURGER -->
         <button (click)="toggleMobileMenu()"
+                aria-label="Toggle mobile menu"
+                [attr.aria-expanded]="isMobileMenuOpen"
                 class="md:hidden text-white p-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0">
-          <span class="material-icons-round text-xl">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
+          <span class="material-icons-round text-xl" aria-hidden="true">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
         </button>
       </nav>
 

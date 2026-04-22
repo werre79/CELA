@@ -74,10 +74,10 @@ import { SecurityContext } from '@angular/core';
                        [class.opacity-100]="!isTransitioning()" [class.opacity-0]="isTransitioning()">
                   
                   <!-- Navigation -->
-                  <button (click)="prevImage()" class="absolute left-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
+                  <button (click)="prevImage()" aria-label="Previous image" class="absolute left-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
                     <span class="material-icons-round text-3xl">chevron_left</span>
                   </button>
-                  <button (click)="nextImage()" class="absolute right-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
+                  <button (click)="nextImage()" aria-label="Next image" class="absolute right-4 w-14 h-14 rounded-full bg-white/5 hover:bg-white/20 border border-white/10 backdrop-blur-md flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-lg z-20">
                     <span class="material-icons-round text-3xl">chevron_right</span>
                   </button>
                 </div>
@@ -143,13 +143,13 @@ import { SecurityContext } from '@angular/core';
                   <span class="material-icons-round text-5xl text-stone-500 mb-6">share</span>
                   <h3 class="text-2xl font-serif text-white mb-8">Поділитися проєктом</h3>
                   <div class="flex gap-6">
-                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-primary border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                     <button aria-label="Share on Facebook" class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-primary border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
                         <i class="fab fa-facebook-f text-2xl"></i>
                      </button>
-                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-sky-400 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                     <button aria-label="Share on Twitter" class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-sky-400 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
                         <i class="fab fa-twitter text-2xl"></i>
                      </button>
-                     <button class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-blue-600 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
+                     <button aria-label="Share on LinkedIn" class="w-16 h-16 rounded-full bg-white/5 hover:bg-white/10 hover:text-blue-600 border border-white/5 hover:border-white/20 text-white flex items-center justify-center transition-all hover:scale-110 shadow-lg">
                         <i class="fab fa-linkedin-in text-2xl"></i>
                      </button>
                   </div>
