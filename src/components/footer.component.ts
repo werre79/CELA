@@ -36,7 +36,7 @@ import { TranslationService } from '../services/translation.service';
             <p class="text-stone-400 text-sm">{{ ts.t().footer.city }}</p>
             <a href="mailto:info&#64;cela.org.ua"
                class="text-stone-300 text-sm font-medium hover:text-terra-400 transition-colors duration-300">
-              info&#64;cela.org.ua
+              cepa.org&#64;gmail.com
             </a>
           </div>
         </div>

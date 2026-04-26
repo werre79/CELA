@@ -34,7 +34,7 @@ import { TranslationService } from '../services/translation.service';
                 </div>
                 <div>
                   <h4 class="font-serif font-bold text-xl text-white mb-1">{{ ts.t().contact.emailTitle }}</h4>
-                  <a href="mailto:info&#64;cela.org.ua" class="text-stone-300 hover:text-accent-glow transition-colors font-light">info&#64;cela.org.ua</a>
+                  <a href="mailto:cepa.org&#64;gmail.com" class="text-stone-300 hover:text-accent-glow transition-colors font-light">info&#64;cela.org.ua</a>
                 </div>
               </div>
 
