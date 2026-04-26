@@ -34,7 +34,7 @@ import { TranslationService } from '../services/translation.service';
               {{ ts.t().nav.contact }}
             </p>
             <p class="text-stone-400 text-sm">{{ ts.t().footer.city }}</p>
-            <a href="mailto:info&#64;cela.org.ua"
+            <a href="mailto:cepa.org&#64;gmail.com"
                class="text-stone-300 text-sm font-medium hover:text-terra-400 transition-colors duration-300">
               cepa.org&#64;gmail.com
             </a>

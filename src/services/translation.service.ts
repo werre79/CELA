@@ -110,7 +110,7 @@ export class TranslationService {
         title: "Контакти",
         subtitle: 'Ми відкриті до співпраці та нових партнерств.', // Це поле ми використовуємо
         addressTitle: 'Адреса',
-        addressValue: 'м. Київ, вул. Хрещатик, 1',
+        addressValue: 'м. Львів',
         emailTitle: 'Електронна пошта',
         phoneTitle: 'Телефон',
         formTitle: 'Форма зворотного зв\'язку',
