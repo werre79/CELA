@@ -291,21 +291,7 @@ export class AdminProjectComponent implements OnInit {
   // ------------------------
 
   generateSlug() {
-    const ukrMap: any = {
-      'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e',
-      'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y',
-      'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-      'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-      'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya', ' ': '-'
-    };
-
-    const titleLower = this.formData.title.toLowerCase();
-
-    this.formData.slug = titleLower.split('').map(char => {
-      if (ukrMap[char] !== undefined) return ukrMap[char];
-      if (/[a-z0-9-]/.test(char)) return char;
-      return '';
-    }).join('').replace(/-+/g, '-');
+    this.formData.slug = DataService.generateSlugFromTitle(this.formData.title);
   }
 
   onFileSelected(event: any, type: 'main' | 'news') {
@@ -395,16 +381,25 @@ export class AdminProjectComponent implements OnInit {
       const uploadPromises = currentItems.map(item => this.data.uploadFile(item.file));
       const galleryUrls = await Promise.all(uploadPromises);
 
-      await this.data.createProject({
-        title: this.formData.title,
-        slug: this.formData.slug,
-        desc: this.formData.desc,
-        details: this.formData.details,
-        type: this.formData.type,
-        image: imageUrl,
-        gallery: galleryUrls,
-        date: new Date().toISOString()
-      });
+      try {
+        await this.data.createProject({
+          title: this.formData.title,
+          slug: this.formData.slug,
+          desc: this.formData.desc,
+          details: this.formData.details,
+          type: this.formData.type,
+          image: imageUrl,
+          gallery: galleryUrls,
+          date: new Date().toISOString()
+        });
+      } catch (createError) {
+        // Document was not created — remove the just-uploaded files so they
+        // don't linger in storage as orphans.
+        await Promise.allSettled(
+          [imageUrl, ...galleryUrls].map(url => this.data.deleteStorageFile(url))
+        );
+        throw createError;
+      }
       alert('Проєкт успішно створено!');
       this.router.navigate(['/']);
     } catch (error) {

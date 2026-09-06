@@ -149,6 +149,12 @@ export class AdminEditNewsComponent implements OnInit {
       }
 
       await this.data.updateNews(this.newsItem().$id, updateData);
+
+      // Best-effort cleanup of the replaced image
+      if (updateData.image && this.newsItem().image && this.newsItem().image !== updateData.image) {
+        await this.data.deleteStorageFile(this.newsItem().image);
+      }
+
       alert('Новину успішно оновлено!');
       this.goBack();
     } catch (error) {
