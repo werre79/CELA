@@ -211,42 +211,28 @@ export class ProjectDetailsComponent implements OnInit {
   });
 
   async ngOnInit() {
-    const user = await this.data.getCurrentUser();
-    this.currentUser.set(user);
-
     const id = this.route.snapshot.paramMap.get('id');
 
-    if (id) {
-      try {
-        // Appwrite IDs are usually 20 chars long, slugs are usually not exactly 20 chars and contain hyphens.
-        // Doing a length/pattern check prevents a useless 400 bad request in the console.
-        let data = null;
-        if (id.length === 20 && !id.includes('-')) {
-          try {
-             data = await this.data.getProjectById(id) as any;
-          } catch (e) {
-             // Fallback to slug if ID fails
-             data = await this.data.getProjectBySlug(id);
-          }
-        } else {
-           data = await this.data.getProjectBySlug(id);
-        }
+    // Fetch the session and the project in parallel — the (optional) edit
+    // button must not delay rendering the article itself.
+    try {
+      const [user, data] = await Promise.all([
+        this.data.getCurrentUser(),
+        id ? this.data.resolveProject(id) : Promise.resolve(null),
+      ]);
+      this.currentUser.set(user);
 
-        if (data) {
-          this.setProject(data);
-          if (data['slug'] && data['slug'] !== id) {
-            this.location.replaceState(`/project/${data['slug']}`);
-          }
-        } else {
-          console.error('Project not found');
+      if (data) {
+        this.setProject(data);
+        if (data['slug'] && data['slug'] !== id) {
+          this.location.replaceState(`/project/${data['slug']}`);
         }
-        window.scrollTo(0, 0);
-      } catch (error) {
-        console.error('Project loading failed', error);
-      } finally {
-        this.isLoading.set(false);
+      } else {
+        console.error('Project not found');
       }
-    } else {
+    } catch (error) {
+      console.error('Project loading failed', error);
+    } finally {
       this.isLoading.set(false);
     }
   }
