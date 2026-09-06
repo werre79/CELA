@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Client, Account, Databases, Storage, ID, Query } from 'appwrite';
 import { environment } from '../environments/environment';
+import { AppUser, NewsArticle, Project, Publication, TeamMember } from '../models';
+
+/** Appwrite caps listDocuments at 100 documents per request. */
+const MAX_PAGE_SIZE = 100;
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +47,7 @@ export class DataService {
     }
   }
 
-  async getCurrentUser(): Promise<{ email: string } | null> {
+  async getCurrentUser(): Promise<AppUser | null> {
     try {
       const user = await this.account.get();
       return { email: user.email };
@@ -56,104 +60,128 @@ export class DataService {
   //     READ
   // ========================
 
-  async getProjects(): Promise<any[]> {
-    try {
+  /**
+   * Fetch every document in a collection, transparently paging through
+   * Appwrite's per-request limit (default 25, max 100).
+   */
+  private async listAllDocuments(collectionId: string, queries: string[] = []): Promise<any[]> {
+    const documents: any[] = [];
+    let total = 0;
+
+    do {
       const res = await this.databases.listDocuments(
         environment.appwrite.databaseId,
+        collectionId,
+        [...queries, Query.limit(MAX_PAGE_SIZE), Query.offset(documents.length)]
+      );
+      documents.push(...res.documents);
+      total = res.total;
+    } while (documents.length < total);
+
+    return documents;
+  }
+
+  async getProjects(): Promise<Project[]> {
+    try {
+      return await this.listAllDocuments(
         environment.appwrite.collections.projects,
         [Query.orderDesc('createdAt')]
       );
-      return res.documents;
     } catch (e) {
       console.error(e);
       return [];
     }
   }
 
-  async getProjectById(id: string): Promise<any | null> {
+  async getProjectById(id: string): Promise<Project | null> {
     try {
       return await this.databases.getDocument(
         environment.appwrite.databaseId,
         environment.appwrite.collections.projects,
         id
-      );
+      ) as unknown as Project;
     } catch {
       return null;
     }
   }
 
-  async getProjectBySlug(slug: string): Promise<any | null> {
+  async getProjectBySlug(slug: string): Promise<Project | null> {
     try {
       const res = await this.databases.listDocuments(
         environment.appwrite.databaseId,
         environment.appwrite.collections.projects,
         [Query.equal('slug', slug), Query.limit(1)]
       );
-      return res.documents.length > 0 ? res.documents[0] : null;
+      return res.documents.length > 0 ? (res.documents[0] as unknown as Project) : null;
     } catch (error) {
       console.error('getProjectBySlug failed:', error);
       return null;
     }
   }
 
-  async getNews(): Promise<any[]> {
+  /**
+   * Resolve a route parameter that may be either a document ID or a slug.
+   * Slug lookup is tried first (it never throws); document ID lookup is the
+   * fallback for legacy links. Replaces the fragile "20 chars, no hyphen" heuristic.
+   */
+  async resolveProject(idOrSlug: string): Promise<Project | null> {
+    const bySlug = await this.getProjectBySlug(idOrSlug);
+    if (bySlug) return bySlug;
+    return this.getProjectById(idOrSlug);
+  }
+
+  async getNews(): Promise<NewsArticle[]> {
     try {
-      const res = await this.databases.listDocuments(
-        environment.appwrite.databaseId,
+      return await this.listAllDocuments(
         environment.appwrite.collections.news,
         [Query.orderDesc('date')]
       );
-      return res.documents;
     } catch {
       return [];
     }
   }
 
-  async getNewsById(id: string): Promise<any | null> {
+  async getNewsById(id: string): Promise<NewsArticle | null> {
     try {
       return await this.databases.getDocument(
         environment.appwrite.databaseId,
         environment.appwrite.collections.news,
         id
-      );
+      ) as unknown as NewsArticle;
     } catch {
       return null;
     }
   }
 
-  async getPublications(): Promise<any[]> {
+  async getPublications(): Promise<Publication[]> {
     try {
-      const res = await this.databases.listDocuments(
-        environment.appwrite.databaseId,
+      return await this.listAllDocuments(
         environment.appwrite.collections.publications,
         [Query.orderDesc('createdAt')]
       );
-      return res.documents;
     } catch {
       return [];
     }
   }
 
-  async getPublicationById(id: string): Promise<any | null> {
+  async getPublicationById(id: string): Promise<Publication | null> {
     try {
       return await this.databases.getDocument(
         environment.appwrite.databaseId,
         environment.appwrite.collections.publications,
         id
-      );
+      ) as unknown as Publication;
     } catch {
       return null;
     }
   }
 
-  async getTeam(): Promise<any[]> {
+  async getTeam(): Promise<TeamMember[]> {
     try {
-      const res = await this.databases.listDocuments(
-        environment.appwrite.databaseId,
+      return await this.listAllDocuments(
         environment.appwrite.collections.team,
         [Query.orderDesc('createdAt')]
       );
-      return res.documents;
     } catch {
       return [];
     }
@@ -177,24 +205,24 @@ export class DataService {
     return fileUrl.href;
   }
 
-  async createProject(data: any): Promise<any> {
+  async createProject(data: any): Promise<Project> {
     data.createdAt = new Date().toISOString();
     return await this.databases.createDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.projects,
       ID.unique(),
       data
-    );
+    ) as unknown as Project;
   }
 
-  async addTeamMember(data: any): Promise<any> {
+  async addTeamMember(data: any): Promise<TeamMember> {
     data.createdAt = new Date().toISOString();
     return await this.databases.createDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.team,
       ID.unique(),
       data
-    );
+    ) as unknown as TeamMember;
   }
 
   async deleteTeamMember(id: string): Promise<void> {
@@ -205,7 +233,7 @@ export class DataService {
     );
   }
 
-  async addNews(data: any): Promise<any> {
+  async addNews(data: any): Promise<NewsArticle> {
     data.createdAt = new Date().toISOString();
     if (!data.date) data.date = data.createdAt;
     return await this.databases.createDocument(
@@ -213,58 +241,103 @@ export class DataService {
       environment.appwrite.collections.news,
       ID.unique(),
       data
-    );
+    ) as unknown as NewsArticle;
   }
 
-  async addPublication(data: any): Promise<any> {
+  async addPublication(data: any): Promise<Publication> {
     data.createdAt = new Date().toISOString();
     return await this.databases.createDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.publications,
       ID.unique(),
       data
-    );
+    ) as unknown as Publication;
   }
 
-  async updateProject(id: string, data: any): Promise<any> {
+  async updateProject(id: string, data: any): Promise<Project> {
     return await this.databases.updateDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.projects,
       id,
       data
-    );
+    ) as unknown as Project;
   }
 
-  async updateNews(id: string, data: any): Promise<any> {
+  async updateNews(id: string, data: any): Promise<NewsArticle> {
     return await this.databases.updateDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.news,
       id,
       data
-    );
+    ) as unknown as NewsArticle;
   }
 
-  async updatePublication(id: string, data: any): Promise<any> {
+  async updatePublication(id: string, data: any): Promise<Publication> {
     return await this.databases.updateDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.publications,
       id,
       data
-    );
+    ) as unknown as Publication;
   }
 
-  async updateTeamMember(id: string, data: any): Promise<any> {
+  async updateTeamMember(id: string, data: any): Promise<TeamMember> {
     return await this.databases.updateDocument(
       environment.appwrite.databaseId,
       environment.appwrite.collections.team,
       id,
       data
+    ) as unknown as TeamMember;
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    await this.databases.deleteDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.projects,
+      id
+    );
+  }
+
+  async deleteNews(id: string): Promise<void> {
+    await this.databases.deleteDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.news,
+      id
+    );
+  }
+
+  async deletePublication(id: string): Promise<void> {
+    await this.databases.deleteDocument(
+      environment.appwrite.databaseId,
+      environment.appwrite.collections.publications,
+      id
     );
   }
 
   // ========================
   //     HELPERS
   // ========================
+
+  /**
+   * Best-effort deletion of a storage file referenced by its public view URL.
+   * Used to avoid orphaned files when images are replaced/removed or when a
+   * document creation fails after its files were already uploaded.
+   */
+  async deleteStorageFile(fileUrl: string): Promise<void> {
+    const fileId = this.extractFileIdFromUrl(fileUrl);
+    if (!fileId) return;
+    try {
+      await this.storage.deleteFile(environment.appwrite.bucketId, fileId);
+    } catch (e) {
+      // Non-fatal: the document operation succeeded; log for follow-up.
+      console.warn('Could not delete storage file:', fileId, e);
+    }
+  }
+
+  private extractFileIdFromUrl(url: string): string | null {
+    const match = url.match(/\/files\/([^/]+)\/(?:view|download)/);
+    return match ? match[1] : null;
+  }
 
   static generateSlugFromTitle(title: string): string {
     if (!title) return '';
