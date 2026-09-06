@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../services/translation.service';
 import { DataService } from '../services/data.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-hero',
@@ -80,7 +81,7 @@ import { DataService } from '../services/data.service';
 
           <div class="hero-ctas flex flex-col sm:flex-row gap-3 flex-shrink-0">
             <!-- TODO: REPLACE WITH ACTUAL DATA (Google Form link or Contact link) -->
-            <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
+            <a [href]="env.supportFormUrl"
                target="_blank" rel="noopener noreferrer"
                id="hero-cta-contact"
                class="btn-terra inline-flex items-center justify-center gap-2
@@ -152,6 +153,7 @@ import { DataService } from '../services/data.service';
 export class HeroComponent implements OnInit {
   ts = inject(TranslationService);
   data = inject(DataService);
+  readonly env = environment;
 
   latestProject = signal<any>(null);
   dots = Array.from({ length: 25 });

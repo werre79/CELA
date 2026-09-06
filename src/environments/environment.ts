@@ -1,5 +1,9 @@
 export const environment = {
   production: false,
+  // Official public contact points (single source of truth)
+  contactEmail: 'cepa.org@gmail.com',
+  // TODO: replace with the real Google Form link before launch
+  supportFormUrl: 'https://forms.gle/REPLACE_WITH_REAL_FORM',
   appwrite: {
     endpoint: "https://fra.cloud.appwrite.io/v1",
     projectId: "69df9a2200326ec63d6d",
