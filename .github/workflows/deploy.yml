@@ -26,17 +26,22 @@ jobs:
         with:
           node-version: "20"
           cache: 'npm'
-          cache-dependency-path: package.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Dependencies
-        # ВИПРАВЛЕННЯ: Примусово видаляємо старий lock-файл перед установкою
-        # Це змушує npm слухати тільки наш правильний package.json
-        run: |
-          rm -f package-lock.json
-          npm install
+        # npm ci installs exactly what package-lock.json pins — reproducible builds.
+        # (The old "rm package-lock.json" workaround is no longer needed:
+        # the lockfile is verified to be in sync with package.json.)
+        run: npm ci
 
       - name: Build
         run: npm run build -- --base-href /${{ github.event.repository.name }}/
+
+      - name: Create SPA fallback (404.html)
+        # GitHub Pages has no rewrite rules; serving index.html on 404 lets
+        # deep links like /project/<slug> and /publications survive a refresh
+        # or a direct visit. The Angular router then resolves the real route.
+        run: cp dist/cepa-website/index.html dist/cepa-website/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
