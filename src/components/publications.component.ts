@@ -61,19 +61,13 @@ import { DataService } from '../services/data.service';
                    </h3>
                    
                    <p class="text-stone-300 text-sm leading-relaxed mb-8 line-clamp-3 font-light">
-                      {{ item.content || item.desc }}
+                      {{ item.desc }}
                    </p>
 
                    <div class="mt-auto pt-6 border-t border-white/5">
-                      @if (item.fileUrl) {
-                        <a [href]="item.fileUrl" target="_blank" class="text-primary-glow font-bold text-sm hover:text-white transition-colors flex items-center gap-2">
-                          <span class="material-icons-round text-lg">download</span> {{ ts.t().publications.downloadPdf }}
-                        </a>
-                      } @else {
-                        <a [routerLink]="[activeFilter() === 'news' ? '/news' : '/publication', item.$id]" class="text-white font-bold text-sm group-hover:text-primary-glow transition-colors flex items-center gap-2 cursor-pointer">
-                          {{ ts.t().publications.readArticle }} <span class="material-icons-round text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                        </a>
-                      }
+                      <a [routerLink]="[activeFilter() === 'news' ? '/news' : '/publication', item.$id]" class="text-white font-bold text-sm group-hover:text-primary-glow transition-colors flex items-center gap-2 cursor-pointer">
+                        {{ ts.t().publications.readArticle }} <span class="material-icons-round text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                      </a>
                    </div>
                 </div>
               }
