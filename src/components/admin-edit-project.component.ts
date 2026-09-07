@@ -42,7 +42,10 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
               <select [(ngModel)]="formData.type" name="type"
                       class="w-full bg-stone-800 border border-white/20 rounded-xl p-4 text-white focus:border-primary focus:outline-none">
                 <option value="donor">Донорський</option>
-                <option value="commercial">Комерційний</option>
+                <option value="probono">Pro Bono</option>
+                @if (formData.type && !['donor', 'probono'].includes(formData.type)) {
+                  <option [value]="formData.type" disabled>Застаріле значення: {{ formData.type }}</option>
+                }
               </select>
             </div>
 
@@ -171,16 +174,7 @@ export class AdminEditProjectComponent implements OnInit {
     }
 
     try {
-      let proj = null;
-      if (id.length === 20 && !id.includes('-')) {
-        try {
-          proj = await this.data.getProjectById(id);
-        } catch (e) {
-          proj = await this.data.getProjectBySlug(id);
-        }
-      } else {
-        proj = await this.data.getProjectBySlug(id);
-      }
+      const proj = await this.data.resolveProject(id);
 
       if (proj) {
         this.project.set(proj);
@@ -344,6 +338,25 @@ export class AdminEditProjectComponent implements OnInit {
       updateData.gallery = resolvedUrls.filter(url => url !== null);
 
       await this.data.updateProject(this.project().$id, updateData);
+
+      // Best-effort cleanup: delete files that are no longer referenced
+      // (replaced main image and/or removed gallery items).
+      const keep = new Set<string>([
+        ...(updateData.image ? [updateData.image] : []),
+        ...updateData.gallery
+      ]);
+      const oldGallery: string[] = Array.isArray(this.project().gallery)
+        ? this.project().gallery
+        : [];
+      const removedUrls = [
+        ...oldGallery,
+        ...(this.project().image ? [this.project().image] : []),
+      ].filter(url => !keep.has(url));
+
+      await Promise.allSettled(
+        removedUrls.map(url => this.data.deleteStorageFile(url))
+      );
+
       alert('Проєкт успішно оновлено!');
       this.goBack();
     } catch (error) {

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslationService } from '../services/translation.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-contact',
@@ -34,7 +35,7 @@ import { TranslationService } from '../services/translation.service';
                 </div>
                 <div>
                   <h4 class="font-serif font-bold text-xl text-white mb-1">{{ ts.t().contact.emailTitle }}</h4>
-                  <a href="mailto:cepa.org&#64;gmail.com" class="text-stone-300 hover:text-accent-glow transition-colors font-light">info&#64;cela.org.ua</a>
+                  <a [href]="'mailto:' + env.contactEmail" class="text-stone-300 hover:text-accent-glow transition-colors font-light">{{ env.contactEmail }}</a>
                 </div>
               </div>
 
@@ -50,7 +51,7 @@ import { TranslationService } from '../services/translation.service';
                 {{ ts.t().contact.subtitle }}
               </p>
             </div>
-            <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
+            <a [href]="env.supportFormUrl"
                target="_blank"
                rel="noopener noreferrer"
                class="w-full py-5 bg-accent hover:bg-accent-glow text-white font-bold text-base rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(217,119,54,0.4)] hover:shadow-[0_0_40px_rgba(217,119,54,0.6)] hover:-translate-y-1 flex justify-center items-center uppercase tracking-wider gap-3">
@@ -67,4 +68,5 @@ import { TranslationService } from '../services/translation.service';
 })
 export class ContactComponent {
   ts = inject(TranslationService);
+  readonly env = environment;
 }

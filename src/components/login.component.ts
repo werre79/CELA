@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../services/data.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -45,6 +45,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   private data = inject(DataService);
+  private route = inject(ActivatedRoute);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
 
@@ -54,10 +55,15 @@ export class LoginComponent implements OnInit {
   errorMsg = '';
   successMsg = '';
 
+  /** Where to go after a successful login (set by authGuard). */
+  private get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl') || '/admin/add';
+  }
+
   async ngOnInit() {
     const user = await this.data.getCurrentUser();
     if (user) {
-      this.router.navigate(['/admin/add']);
+      this.router.navigate([this.returnUrl]);
     }
   }
 
@@ -74,7 +80,7 @@ export class LoginComponent implements OnInit {
 
       // small delay to show the success message
       setTimeout(() => {
-        this.router.navigate(['/admin/add']);
+        this.router.navigate([this.returnUrl]);
       }, 1000);
 
     } catch (error: any) {
@@ -82,8 +88,9 @@ export class LoginComponent implements OnInit {
 
       const errMsg = error?.message?.toLowerCase() || '';
 
-      if (error?.type === 'user_session_already_exists' || error?.code === 401 && errMsg.includes('session is active')) {
-        this.router.navigate(['/admin/add']);
+      if (error?.type === 'user_session_already_exists') {
+        // An active session for this account already exists — treat as logged in.
+        this.router.navigate([this.returnUrl]);
       } else if (errMsg.includes('network') || errMsg.includes('fetch failed') || errMsg.includes('failed to fetch')) {
         this.errorMsg = 'Немає зв\'язку із сервером (Network Error). Перевірте підключення до Інтернету або налаштування Appwrite.';
       } else if (error?.code === 401 || errMsg.includes('invalid credentials')) {

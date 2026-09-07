@@ -136,32 +136,29 @@ export class ArticleDetailsComponent implements OnInit {
   currentUser = signal<{email: string} | null>(null);
 
   async ngOnInit() {
-    const user = await this.data.getCurrentUser();
-    this.currentUser.set(user);
-
     const id = this.route.snapshot.paramMap.get('id');
-    const path = this.route.snapshot.url[0].path;
+    const path = this.route.snapshot.url[0]?.path;
     this.type.set(path === 'news' ? 'news' : 'publication');
 
-    if (id) {
-      try {
-        let data;
-        if (this.type() === 'news') {
-           data = await this.data.getNewsById(id);
-        } else {
-           data = await this.data.getPublicationById(id);
-        }
+    // Fetch the session and the article in parallel — the (optional) edit
+    // button must not delay rendering the article itself.
+    try {
+      const [user, data] = await Promise.all([
+        this.data.getCurrentUser(),
+        id
+          ? (this.type() === 'news'
+              ? this.data.getNewsById(id)
+              : this.data.getPublicationById(id))
+          : Promise.resolve(null),
+      ]);
+      this.currentUser.set(user);
 
-        if (data) {
-          this.setArticle(data);
-        }
-        window.scrollTo(0, 0);
-      } catch (error) {
-        console.error('Article loading failed', error);
-      } finally {
-        this.isLoading.set(false);
+      if (data) {
+        this.setArticle(data);
       }
-    } else {
+    } catch (error) {
+      console.error('Article loading failed', error);
+    } finally {
       this.isLoading.set(false);
     }
   }

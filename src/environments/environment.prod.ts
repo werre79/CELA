@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
+  production: true,
   // Official public contact points (single source of truth)
   contactEmail: 'cepa.org@gmail.com',
   // TODO: replace with the real Google Form link before launch

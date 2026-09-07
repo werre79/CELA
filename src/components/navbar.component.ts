@@ -2,6 +2,7 @@ import { Component, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService, Language } from '../services/translation.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -51,7 +52,7 @@ import { TranslationService, Language } from '../services/translation.service';
           <div class="h-5 w-px bg-white/20"></div>
 
           <!-- CTA -->
-          <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
+          <a [href]="env.supportFormUrl"
              target="_blank" rel="noopener noreferrer"
              id="navbar-cta-support"
              class="btn-terra inline-flex items-center gap-1.5 px-4 py-2 rounded-full
@@ -94,7 +95,7 @@ import { TranslationService, Language } from '../services/translation.service';
           <div class="h-px bg-white/10"></div>
 
           <div class="flex items-center justify-center">
-            <a href="https://forms.gle/REPLACE_WITH_REAL_FORM"
+            <a [href]="env.supportFormUrl"
                target="_blank" rel="noopener noreferrer"
                (click)="closeMobileMenu()"
                class="btn-terra inline-flex items-center gap-2 px-5 py-2.5 rounded-full
@@ -109,6 +110,7 @@ import { TranslationService, Language } from '../services/translation.service';
 })
 export class NavbarComponent {
   ts = inject(TranslationService);
+  readonly env = environment;
   isMobileMenuOpen = false;
   isScrolled = false;
 
